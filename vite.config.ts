@@ -56,6 +56,13 @@ export default defineConfig(({ command, mode }): UserConfig => {
         "Cache-Control": "public, max-age=600",
       },
     },
+    build: {
+        rollupOptions: {
+            external: [
+                '@node-rs/argon2-wasm32-wasi'
+            ]
+        }
+    }
   };
 });
 // *** utils ***

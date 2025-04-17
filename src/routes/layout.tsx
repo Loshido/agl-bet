@@ -1,5 +1,6 @@
 import { component$, Slot } from "@builder.io/qwik";
 import type { RequestHandler } from "@builder.io/qwik-city";
+import { verify } from "~/lib/jwt";
 
 export const onGet: RequestHandler = async ({ cacheControl }) => {
     // Control caching for this request for best performance and to reduce hosting costs:
@@ -11,6 +12,14 @@ export const onGet: RequestHandler = async ({ cacheControl }) => {
         maxAge: 5,
     });
 };
+
+export const onRequest: RequestHandler = async ctx => {
+    const token = ctx.cookie.get('token')
+    if(!ctx.url.pathname.startsWith('/home') && token) {
+        const payload = await verify(token.value, ctx.env)
+        if(payload) throw ctx.redirect(302, '/home')
+    }
+}
 
 export default component$(() => {
     return <Slot />;

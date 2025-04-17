@@ -1,8 +1,47 @@
 import { component$, Slot } from "@builder.io/qwik";
-import { Link, useDocumentHead, useLocation } from "@builder.io/qwik-city";
+import { Link, type RequestHandler, routeLoader$, useDocumentHead, useLocation } from "@builder.io/qwik-city";
+
+
+import { verify } from "~/lib/jwt";
+import cache from "~/lib/cache"
+import pg from "~/lib/pg";
+export const onRequest: RequestHandler = async ctx => {
+    const token = ctx.cookie.get('token');
+    if(!token) throw ctx.redirect(302, '/');
+    
+    const payload = await verify(token.value, ctx.env)
+    if(!payload) throw ctx.redirect(302, '/')
+        
+    if(await cache.has(payload.pseudo)) {
+        const data = await cache.getItem(payload.pseudo)
+        if(data) ctx.sharedMap.set('payload', {
+            pseudo: payload.pseudo,
+            agl: data.agl
+        })
+        return
+    };
+    
+    const client = await pg()
+    const response = await client.query<{ agl: number }>(
+        `SELECT agl FROM utilisateurs WHERE pseudo = $1`,
+        [payload.pseudo]
+    )
+    client.release()
+
+    if(response.rowCount) {
+        await cache.setItem(payload.pseudo, {
+            agl: response.rows[0].agl,
+            badges: []
+        })
+        ctx.sharedMap.set('payload', {
+            pseudo: payload.pseudo,
+            agl: response.rows[0].agl
+        })
+    }
+}
+
 import Live from "~/assets/live.svg?jsx"
 import Bank from "~/assets/bank.svg?jsx"
-
 const liens = [
     {
         path: '/home/match/',
@@ -30,9 +69,17 @@ const liens = [
     },
 ]
 
+export const usePayload = routeLoader$(ctx => {
+    return ctx.sharedMap.get('payload') as {
+        pseudo: string,
+        agl: number
+    }
+})
+
 export default component$(() => {
     const head = useDocumentHead();
     const loc = useLocation();
+    const payload = usePayload()
 
     if(head.frontmatter.home_layout === false) return <Slot/>
 
@@ -52,9 +99,9 @@ export default component$(() => {
                 }
             </nav>
             <div class="p-1.5 sm:p-2 bg-white/25 rounded-md font-sobi whitespace-nowrap">
-                100000000 <span class="text-sm text-pink">agl</span>
+                { payload.value.agl } <span class="text-sm text-pink">agl</span>
             </div>
         </header>
         <Slot/>
-</section>
+    </section>
 })

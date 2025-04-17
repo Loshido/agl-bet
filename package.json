@@ -28,6 +28,7 @@
     "@tailwindcss/vite": "^4.0.0",
     "@types/eslint": "8.56.10",
     "@types/node": "20.14.11",
+    "@types/pg": "^8.11.13",
     "@typescript-eslint/eslint-plugin": "7.16.1",
     "@typescript-eslint/parser": "7.16.1",
     "eslint": "8.57.0",
@@ -39,5 +40,11 @@
     "undici": "*",
     "vite": "5.3.5",
     "vite-tsconfig-paths": "^4.2.1"
+  },
+  "dependencies": {
+    "@node-rs/argon2": "^2.0.2",
+    "jose": "^6.0.10",
+    "pg": "^8.14.1",
+    "unstorage": "^1.15.0"
   }
 }

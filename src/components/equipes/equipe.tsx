@@ -1,4 +1,4 @@
-import { component$, PropsOf } from "@builder.io/qwik";
+import { component$, type PropsOf } from "@builder.io/qwik";
 import Icon from "~/assets/icon.png?jsx"
 
 type Props = {
