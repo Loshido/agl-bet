@@ -84,12 +84,3 @@ export default component$(() => {
     </section>
 });
 
-export const head: DocumentHead = {
-    title: "AGL Bet",
-    meta: [
-        {
-            name: "description",
-            content: "Une plateforme de paris fictifs pour l'évènement All Game Long",
-        },
-    ],
-};

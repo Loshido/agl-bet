@@ -3,7 +3,7 @@ import { Link, type RequestHandler, routeLoader$, useDocumentHead, useLocation }
 
 
 import { verify } from "~/lib/jwt";
-import cache from "~/lib/cache"
+import { users } from "~/lib/cache"
 import pg from "~/lib/pg";
 export const onRequest: RequestHandler = async ctx => {
     const token = ctx.cookie.get('token');
@@ -12,12 +12,16 @@ export const onRequest: RequestHandler = async ctx => {
     const payload = await verify(token.value, ctx.env)
     if(!payload) throw ctx.redirect(302, '/')
         
-    if(await cache.has(payload.pseudo)) {
-        const data = await cache.getItem(payload.pseudo)
+    if(await users.has(payload.pseudo)) {
+        const data = await users.getItem(payload.pseudo)
         if(data) ctx.sharedMap.set('payload', {
             pseudo: payload.pseudo,
             agl: data.agl
         })
+
+        if(data?.reset) {
+            throw ctx.redirect(302, '/home/reset')
+        }
         return
     };
     
@@ -29,7 +33,7 @@ export const onRequest: RequestHandler = async ctx => {
     client.release()
 
     if(response.rowCount) {
-        await cache.setItem(payload.pseudo, {
+        await users.setItem(payload.pseudo, {
             agl: response.rows[0].agl,
             badges: []
         })
@@ -40,8 +44,8 @@ export const onRequest: RequestHandler = async ctx => {
     }
 }
 
-import Live from "~/assets/live.svg?jsx"
-import Bank from "~/assets/bank.svg?jsx"
+import Live from "~/assets/icons/live.svg?jsx"
+import Bank from "~/assets/icons/bank.svg?jsx"
 const liens = [
     {
         path: '/home/match/',
@@ -58,15 +62,15 @@ const liens = [
             </span>
         </>
     },
-    {
-        path: '/home/bank/',
-        slot: <>
-            <Bank/>
-            <span class="hidden sm:block">
-                Banque
-            </span>
-        </>
-    },
+    // {
+    //     path: '/home/bank/',
+    //     slot: <>
+    //         <Bank/>
+    //         <span class="hidden sm:block">
+    //             Banque
+    //         </span>
+    //     </>
+    // },
 ]
 
 export const usePayload = routeLoader$(ctx => {
@@ -98,9 +102,10 @@ export default component$(() => {
                     </Link>)
                 }
             </nav>
-            <div class="p-1.5 sm:p-2 bg-white/25 rounded-md font-sobi whitespace-nowrap">
+            <Link class="p-1.5 sm:p-2 bg-white/25 hover:bg-white/50 rounded-md font-sobi whitespace-nowrap"
+                href="/home/bank">
                 { payload.value.agl } <span class="text-sm text-pink">agl</span>
-            </div>
+            </Link>
         </header>
         <Slot/>
     </section>

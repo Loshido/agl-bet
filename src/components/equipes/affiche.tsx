@@ -1,34 +1,24 @@
 import { component$ } from "@builder.io/qwik";
 import Equipe from "./equipe";
-import Users from "~/assets/users.svg?jsx"
 import { Link } from "@builder.io/qwik-city";
+import { FullMatch } from "~/lib/cache";
 
-type Props = {
-    id: string,
-    titre: string,
-    description: string,
-
-    equipes: {
-        nom: string,
-        img?: string
-    }[]
-
-    participants: number,
-    agl: number
-}
+import Users from "~/assets/icons/users.svg?jsx"
+type Props = FullMatch
 export default component$((affiche: Props) => {
     return <div class="w-full flex flex-col gap-1 bg-white/25 p-4 rounded-md relative">
         <h2 class="font-sobi text-2xl">
             { affiche.titre }
         </h2>
         <p class="text-white/75 text-wrap">
-            { affiche.description }
+            { affiche.informations }
         </p>
         <div class="flex flex-row items-center justify-center py-4 overflow-x-auto">
             {
                 affiche.equipes.map((equipe, i, a) => <>
                     <Equipe class="py-2"
-                        {...equipe}/>
+                        nom={equipe.nom}
+                        image={equipe.image}/>
                     {
                         i + 1 !== a.length && <span class="font-sobi text-pink">
                             VS

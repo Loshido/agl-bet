@@ -3,7 +3,7 @@ import Icon from "~/assets/icon.png?jsx"
 
 type Props = {
     nom: string,
-    image?: string
+    image: string | null
 } & PropsOf<'div'>
 
 export default component$(({ image, nom, ...props }: Props) => {
