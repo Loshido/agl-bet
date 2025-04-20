@@ -67,6 +67,7 @@ export default component$(() => {
                     hover:text-pink text-white group
                     transition-colors duration-500
                     flex flex-row items-center gap-2"
+                    prefetch={false}
                     href="/home/logout">
                     <Logout class="w-10 h-10 *:stroke-3 *:duration-500 *:transition-colors
                         *:stroke-white group-hover:*:stroke-pink"/>

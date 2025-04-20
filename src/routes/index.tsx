@@ -47,7 +47,7 @@ export const useSubmit = routeAction$(async (form, ctx) => {
     ctx.cookie.set('token', jwt, {
         expires: new Date(Date.now() + 1000 * 60 * 60 * 12)
     });
-    throw ctx.redirect(302, '/home')
+    throw ctx.redirect(302, '/home?delete-cache')
 }, zod$({
     pseudo: z.string(),
     pass: z.string().min(4)

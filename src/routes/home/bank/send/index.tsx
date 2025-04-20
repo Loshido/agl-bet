@@ -5,7 +5,7 @@ import pg from "~/lib/pg";
 import { users } from "~/lib/cache";
 export const useEnvoyer = routeAction$(async (data, ctx) => {
     const payload = ctx.sharedMap.get('payload') as {
-        pseudo: string,
+        pseudo: string, 
         agl: number
     } | undefined
 

@@ -1,6 +1,5 @@
-import { component$, Slot } from "@builder.io/qwik";
+import { component$, Slot, useVisibleTask$ } from "@builder.io/qwik";
 import { Link, type RequestHandler, routeLoader$, useDocumentHead, useLocation } from "@builder.io/qwik-city";
-
 
 import { verify } from "~/lib/jwt";
 import { users } from "~/lib/cache"
@@ -20,7 +19,9 @@ export const onRequest: RequestHandler = async ctx => {
         })
 
         if(data?.reset) {
-            throw ctx.redirect(302, '/home/reset')
+            const reset_location = ctx.url;
+            reset_location.searchParams.append('delete-cache', '')
+            throw ctx.redirect(302, reset_location.toString())
         }
         return
     };
@@ -45,7 +46,7 @@ export const onRequest: RequestHandler = async ctx => {
 }
 
 import Live from "~/assets/icons/live.svg?jsx"
-import Bank from "~/assets/icons/bank.svg?jsx"
+import Leader from "~/assets/icons/leader.svg?jsx"
 const liens = [
     {
         path: '/home/match/',
@@ -62,15 +63,15 @@ const liens = [
             </span>
         </>
     },
-    // {
-    //     path: '/home/bank/',
-    //     slot: <>
-    //         <Bank/>
-    //         <span class="hidden sm:block">
-    //             Banque
-    //         </span>
-    //     </>
-    // },
+    {
+        path: '/home/leaderboard/',
+        slot: <>
+            <Leader/>
+            <span class="hidden sm:block">
+                Classement
+            </span>
+        </>
+    },
 ]
 
 export const usePayload = routeLoader$(ctx => {
@@ -84,6 +85,15 @@ export default component$(() => {
     const head = useDocumentHead();
     const loc = useLocation();
     const payload = usePayload()
+
+    useVisibleTask$(() => {
+        if(loc.url.searchParams.has('delete-cache')) {
+            localStorage.clear()
+            sessionStorage.clear()
+
+            loc.url.searchParams.delete('delete-cache')
+        }
+    })
 
     if(head.frontmatter.home_layout === false) return <Slot/>
 
