@@ -1,5 +1,5 @@
 import type { EnvGetter } from "@builder.io/qwik-city/middleware/request-handler";
-import { type JWTPayload, jwtVerify, SignJWT } from "jose";
+import { type JWTPayload, jwtVerify, SignJWT, decodeJwt } from "jose";
 
 export interface Payload {
     pseudo: string
@@ -47,4 +47,12 @@ export const sign = async (payload: Payload & JWTPayload, ctx: EnvGetter): Promi
         .sign(key)
 
     return jwt
+}
+
+export const decode = (jwt: string) => {
+    try {
+        return decodeJwt<Payload>(jwt)
+    } catch(e) {
+        return null
+    }
 }

@@ -3,13 +3,11 @@ import { Link, routeAction$, z, zod$ } from "@builder.io/qwik-city";
 
 import pg from "~/lib/pg";
 import { users } from "~/lib/cache";
+import type { SharedPayload } from "~/routes/home/layout";
 export const useEnvoyer = routeAction$(async (data, ctx) => {
-    const payload = ctx.sharedMap.get('payload') as {
-        pseudo: string, 
-        agl: number
-    } | undefined
+    const payload = ctx.sharedMap.get('payload') as SharedPayload | undefined
 
-    if(!payload?.pseudo || data.pseudo.length === 0) {
+    if(!payload || data.pseudo.length === 0) {
         return {
             message: "Les pseudos ont un problème",
             status: false

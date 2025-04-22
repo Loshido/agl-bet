@@ -5,7 +5,8 @@ import { Equipes, Match } from "./types";
 export const users = createStorage<{
     agl: number,
     badges: [],
-    reset?: true
+    reset?: true,
+    credit?: 'en attente' | 'remboursement'
 }>({
     driver: memoryDriver()
 });
@@ -20,6 +21,15 @@ export const matchs = createStorage<FullMatch>({
 export const equipes = createStorage<{
     devise: string,
     image: string
+}>({
+    driver: memoryDriver()
+})
+
+export const credits = createStorage<{
+    du: number,
+    interets: number,
+    credit: number,
+    status: string
 }>({
     driver: memoryDriver()
 })

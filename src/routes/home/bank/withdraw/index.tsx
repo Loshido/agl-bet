@@ -4,13 +4,10 @@ import { Link, routeAction$, z, zod$ } from "@builder.io/qwik-city";
 import { users } from "~/lib/cache";
 import pg from "~/lib/pg";
 export const useRetrait = routeAction$(async (data, ctx) => {
-    const payload = ctx.sharedMap.get('payload') as {
-        pseudo: string,
-        agl: number
-    } | undefined
+    const payload = ctx.sharedMap.get('payload') as SharedPayload | undefined
     if(!payload?.pseudo) {
         return {
-            message: "L'utilisateur pas trouvable",
+            message: "L'utilisateur est introuvable",
             status: false
         }
     }
@@ -69,7 +66,7 @@ export const useRetrait = routeAction$(async (data, ctx) => {
 }))
 
 import Back from "~/assets/icons/back.svg?jsx"
-import { usePayload } from "../../layout";
+import { type SharedPayload, usePayload } from "~/routes/home/layout";
 export default component$(() => {    
     const payload = usePayload()
     const latest = useSignal(0)

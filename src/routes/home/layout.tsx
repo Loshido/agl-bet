@@ -1,6 +1,12 @@
 import { component$, Slot, useVisibleTask$ } from "@builder.io/qwik";
 import { Link, type RequestHandler, routeLoader$, useDocumentHead, useLocation } from "@builder.io/qwik-city";
 
+export interface SharedPayload {
+    pseudo: string,
+    agl: number,
+    credit?: 'remboursement' | 'en attente'
+}
+
 import { verify } from "~/lib/jwt";
 import { users } from "~/lib/cache"
 import pg from "~/lib/pg";
@@ -15,7 +21,8 @@ export const onRequest: RequestHandler = async ctx => {
         const data = await users.getItem(payload.pseudo)
         if(data) ctx.sharedMap.set('payload', {
             pseudo: payload.pseudo,
-            agl: data.agl
+            agl: data.agl,
+            credit: data.credit
         })
 
         if(data?.reset) {
@@ -31,16 +38,24 @@ export const onRequest: RequestHandler = async ctx => {
         `SELECT agl FROM utilisateurs WHERE pseudo = $1`,
         [payload.pseudo]
     )
+    const credits = await client.query<{ status: 'remboursement' | 'en attente' | 'rembourse'}>(
+        `SELECT status FROM credits WHERE pseudo = $1`, 
+        [payload.pseudo])
     client.release()
 
     if(response.rowCount) {
+        const credit = credits.rowCount && credits.rows[0].status !== 'rembourse'
+            ? credits.rows[0].status as 'remboursement' | 'en attente'
+            : undefined
         await users.setItem(payload.pseudo, {
             agl: response.rows[0].agl,
-            badges: []
+            badges: [],
+            credit
         })
         ctx.sharedMap.set('payload', {
             pseudo: payload.pseudo,
-            agl: response.rows[0].agl
+            agl: response.rows[0].agl,
+            credit
         })
     }
 }
@@ -75,10 +90,7 @@ const liens = [
 ]
 
 export const usePayload = routeLoader$(ctx => {
-    return ctx.sharedMap.get('payload') as {
-        pseudo: string,
-        agl: number
-    }
+    return ctx.sharedMap.get('payload') as SharedPayload
 })
 
 export default component$(() => {

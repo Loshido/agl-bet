@@ -29,15 +29,13 @@ const Transaction = (transaction: TransactionProps) => <div
 </div>
 
 import pg from "~/lib/pg"
+import type { SharedPayload } from "~/routes/home/layout";
 export const useHistorique = routeLoader$(async ctx => {
     // derniere mise à jours
     const latest = ctx.cookie.get('transactions');
     const from = latest?.number() || 0
 
-    const payload = ctx.sharedMap.get('payload') as {
-        pseudo: string,
-        agl: number
-    }
+    const payload = ctx.sharedMap.get('payload') as SharedPayload
     if(Math.abs(from - Date.now()) < 1000) {
         return {
             agl: payload.agl,
