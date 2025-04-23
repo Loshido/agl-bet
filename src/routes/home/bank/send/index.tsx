@@ -58,6 +58,7 @@ export const useEnvoyer = routeAction$(async (data, ctx) => {
         await users.removeItem(destinataire)
     } catch(e) {
         await client.query('ROLLBACK')
+        client.release()
         throw e
     }
     

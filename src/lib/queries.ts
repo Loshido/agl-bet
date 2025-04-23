@@ -33,13 +33,12 @@ export const matchs = async (): Promise<FullMatch[]> => {
     
     if(!response.rowCount || !equipes.rowCount) return data
     response.rows.forEach(async row => {
-
+        const eq = row.equipes
+            .map(local_equipe => equipes.rows.find(equipe => local_equipe === equipe.nom))
+            .filter(equipe => equipe != undefined) as Equipes[]
         const value: FullMatch = {
             ...row,
-            equipes: row.equipes
-                .map(local_equipe => equipes.rows
-                    .find(equipe => local_equipe === equipe.nom))
-                .filter(equipe => !!equipe)
+            equipes: eq
         }
         data.push(value);
         await matchs_cache.setItem(row.id, value)

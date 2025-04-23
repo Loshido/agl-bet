@@ -1,16 +1,18 @@
-import { component$, Resource, useResource$ } from "@builder.io/qwik";
+import { component$, Resource, useResource$, useSignal } from "@builder.io/qwik";
 import { loadCreditData, useRemboursement } from ".";
+import { useNavigate } from "@builder.io/qwik-city";
 
 export default component$(() => {
-
+    const nav = useNavigate()
     const credit = useResource$<{
         credit: number,
         interets: number,
         status: string,
         du: number
     }>(async () => await loadCreditData())
-
     const remboursement = useRemboursement()
+    const message = useSignal('')
+
     return <Resource
         value={credit}
         onPending={() => <>
@@ -44,8 +46,19 @@ export default component$(() => {
                 font-sobi text-xl cursor-pointer"
                 onClick$={async () => {
                     const response = await remboursement.submit()
+                    if(response.value.message) {
+                        message.value = response.value.message
+                    }
+                    if(response.value.status) {
+                        nav('/home/bank')
+                    }
                 }}>
                 Rembourser
             </button>
+            <p class="px-4 sm:px-8 text-xl font-medium">
+                {
+                    message.value
+                }
+            </p>
         </>}/>
 })

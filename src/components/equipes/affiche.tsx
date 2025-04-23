@@ -1,7 +1,7 @@
 import { component$ } from "@builder.io/qwik";
 import Equipe from "./equipe";
 import { Link } from "@builder.io/qwik-city";
-import { FullMatch } from "~/lib/cache";
+import type { FullMatch } from "~/lib/cache";
 
 import Users from "~/assets/icons/users.svg?jsx"
 type Props = FullMatch

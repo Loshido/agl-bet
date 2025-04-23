@@ -69,7 +69,7 @@ export default component$(({ payload }: Props) => {
                 const response = await credit.submit({
                     apport: apport.value
                 })
-                if(response.value && response.value.status) {
+                if(response.value.status) {
                     payload.value.credit = 'en attente'
                 }
             }}/>

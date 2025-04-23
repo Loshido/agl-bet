@@ -123,6 +123,7 @@ export default component$(() => {
         <section class="flex flex-col w-full">
             {
                 transactions.map(tr => <Transaction
+                    key={tr.id}
                     agl={tr.agl}
                     raison={tr.raison}
                     date={tr.at}/>)

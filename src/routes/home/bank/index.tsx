@@ -1,5 +1,5 @@
 import { component$ } from "@builder.io/qwik";
-import { type DocumentHead, Link } from "@builder.io/qwik-city";
+import { Link } from "@builder.io/qwik-city";
 import { usePayload } from "../layout";
 
 import Back from "~/assets/icons/back.svg?jsx"

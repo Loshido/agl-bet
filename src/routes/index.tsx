@@ -1,5 +1,5 @@
 import { component$ } from "@builder.io/qwik";
-import { Form, routeAction$, z, zod$, type DocumentHead } from "@builder.io/qwik-city";
+import { Form, routeAction$, z, zod$ } from "@builder.io/qwik-city";
 import Logo from "~/assets/logo.png?jsx"
 import { compare, hash } from "~/lib/argon";
 import { sign } from "~/lib/jwt";
@@ -74,7 +74,7 @@ export default component$(() => {
             <pre class="font-avenir font-light text-center">
                 {
                     submit.submitted && typeof submit.value === 'string' 
-                    && submit.value
+                    && submit.value as string
                     ||
                     submit.submitted && submit.value?.failed 
                     && "Le mots de passe doit contenir au moins 4 caractères"

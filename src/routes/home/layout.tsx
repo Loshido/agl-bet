@@ -31,7 +31,7 @@ export const onRequest: RequestHandler = async ctx => {
             throw ctx.redirect(302, reset_location.toString())
         }
         return
-    };
+    }
     
     const client = await pg()
     const response = await client.query<{ agl: number }>(
@@ -44,8 +44,8 @@ export const onRequest: RequestHandler = async ctx => {
     client.release()
 
     if(response.rowCount) {
-        const credit = credits.rowCount && credits.rows[0].status !== 'rembourse'
-            ? credits.rows[0].status as 'remboursement' | 'en attente'
+        const credit = credits.rowCount && credits.rows.some(row => row.status !== 'rembourse')
+            ? credits.rows.find(row => row.status !== 'rembourse')!.status as 'remboursement' | 'en attente'
             : undefined
         await users.setItem(payload.pseudo, {
             agl: response.rows[0].agl,

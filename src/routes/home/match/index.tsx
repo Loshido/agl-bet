@@ -13,7 +13,7 @@ export default component$(() => {
 
     return <>
         {
-            matchs.value.map(match => <Affiche {...match} />)
+            matchs.value.map(match => <Affiche {...match} key={match.id} />)
         }
     </>
 })

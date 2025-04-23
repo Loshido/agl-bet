@@ -7,11 +7,9 @@ import { users } from "~/lib/cache";
 import type { SharedPayload } from "~/routes/home/layout";
 export const useCredit = routeAction$(async (data, ctx) => {
     const payload = ctx.sharedMap.get('payload') as SharedPayload | undefined
-    if(!payload) {
-        return {
-            message: "L'utilisateur est introuvable",
-            status: false
-        }
+    if(!payload) return {
+        message: "L'utilisateur est introuvable",
+        status: false
     }
     const apport = data.apport;
     const interets = 0.8 * Math.exp(0.0366 * Math.log(apport * 3)) - 1
@@ -60,7 +58,10 @@ export const useCredit = routeAction$(async (data, ctx) => {
             console.error(e)
             if(typeof e === 'object' && e !== null && 'message' in e) {
                 client.release()
-                return e
+                return e as {
+                    message: string,
+                    status: boolean
+                }
             }
             throw e
         }
@@ -116,15 +117,80 @@ export const loadCreditData = server$(async function(){
 
 export const useRemboursement = routeAction$(async (_, ctx) => {
     const payload = ctx.sharedMap.get('payload') as SharedPayload | undefined
-    if(!payload) {
-        return {
-            message: "L'utilisateur est introuvable",
+    if(!payload) return {
+        message: "L'utilisateur est introuvable",
+        status: false
+    }
+    const client = await pg();
+    try {
+        await client.query('BEGIN')
+
+        const credit = await client.query<{ interets: number, credit: number, du: number }>(
+            `SELECT interets, credit, du FROM credits
+            WHERE pseudo = $1 AND status = 'remboursement'`,
+            [payload.pseudo]
+        );
+
+        if(!credit.rowCount) throw {
+            message: "Vous n'avez pas de crédits",
             status: false
         }
-    }
-    // supprimer de creditsCache
 
-    console.log(payload)
+        const argents = await client.query(
+            `UPDATE utilisateurs SET agl = agl - $2
+            WHERE pseudo = $1 AND agl >= $2`,
+            [payload.pseudo, credit.rows[0].du]
+        )
+        payload.agl -= credit.rows[0].du
+
+        if(!argents.rowCount) throw {
+            message: "Vous n'avez pas assez d'argents",
+            status: false
+        }
+
+        await client.query(
+            `UPDATE credits SET status = 'rembourse'
+            WHERE pseudo = $1 AND status = 'remboursement'`,
+            [payload.pseudo]
+        );
+
+        await client.query(
+            `INSERT INTO transactions (pseudo, agl, raison)
+            VALUES ($1, $2, $3)`,
+            [payload.pseudo, -credit.rows[0].du, "Remboursement crédit"]
+        )
+
+        await client.query('COMMIT')
+        await creditsCache.removeItem(payload.pseudo)
+    } catch(e) {
+        await client.query('ROLLBACK')
+        client.release()
+        console.error("[db][credit]", e)
+        if(typeof e === 'object' && e && 'message' in e && typeof e.message === 'string') {
+            return e as {
+                message: string,
+                status: boolean
+            }
+        }
+
+        throw e
+    }
+    client.release()
+    ctx.sharedMap.set('payload', {
+        ...payload,
+        credit: undefined
+    } as SharedPayload)
+
+    const user = await users.getItem(payload.pseudo)
+    if(user) await users.setItem(payload.pseudo, {
+        ...user,
+        credit: undefined,
+        agl: payload.agl
+    })
+    return {
+        message: "Votre crédit est remboursé.",
+        status: true
+    }
 })
 
 import { usePayload } from "~/routes/home/layout";
