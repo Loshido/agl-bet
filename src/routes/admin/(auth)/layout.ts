@@ -1,5 +1,6 @@
 import { type RequestHandler } from "@builder.io/qwik-city/middleware/request-handler";
 import { root_token, tokens } from "../auth";
+
 export const onRequest: RequestHandler = async ctx => {
     const cookie = ctx.cookie.get('admin')
     const root = cookie && cookie.value === root_token
