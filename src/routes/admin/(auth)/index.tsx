@@ -8,7 +8,7 @@ export const useIdentity = routeLoader$(ctx => {
 export default component$(() => {
     const identity = useIdentity()
 
-    return <section class="p-4 lg:p-16 md:p-8 flex flex-col gap-2 lg:gap-4 xl:gap-5 relative">
+    return <section class="p-4 lg:p-16 md:p-8 flex flex-col gap-2 lg:gap-3 xl:gap-4 relative">
         <p class="py-2 mx-4 text-pink">
             Connecté en tant que { identity.value }
         </p>
