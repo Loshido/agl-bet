@@ -10,7 +10,7 @@ export default component$(({ open, exit, ...props }: Props) => {
             if(e.target === t) await exit()
         }}
         class={[
-            "top-0 left-0 absolute h-svh w-svw bg-white/10 backdrop-blur-md items-center justify-center",
+            "top-0 left-0 absolute h-svh w-svw bg-white/10 backdrop-blur-md gap-2 items-center justify-center",
             open ? 'flex' : 'hidden', props.class
         ]}>
         <Slot/>

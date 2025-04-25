@@ -2,7 +2,7 @@ import { $, component$, useSignal } from "@builder.io/qwik";
 import { routeLoader$, server$ } from "@builder.io/qwik-city";
 import Dialog from "~/components/Dialog";
 
-import { tokens } from "~/routes/admin/auth";
+import { tokens, sauvegarderAdministrateurs } from "~/routes/admin/auth";
 export const useAdminAccounts = routeLoader$(ctx => {
     const users: [string, string, boolean][] = [];
     tokens.forEach((meta, token) => {
@@ -14,6 +14,7 @@ export const useAdminAccounts = routeLoader$(ctx => {
 
 export const supprimer = server$(async (token: string) => {
     tokens.delete(token)
+    await sauvegarderAdministrateurs()
 })
 import { randomUUID } from "crypto"
 import webhook from "./webhook";
@@ -25,6 +26,7 @@ export const nouveau = server$(async (nom: string) => {
         claimed: false
     })
     await webhook(token, nom)
+    await sauvegarderAdministrateurs()
 })
 
 export default component$(() => {

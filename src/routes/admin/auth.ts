@@ -1,3 +1,5 @@
+import pg from "~/lib/pg";
+
 // Cookie qui donne accès à la partie administration de la plateforme
 export const admin = process.env.ROOT_TOKEN
 if(!admin) throw new Error('ROOT_TOKEN introuvable')
@@ -7,9 +9,43 @@ export const tokens = new Map<string, { name: string, claimed: boolean }>()
 export const root_token = admin
 console.log(`[admin] root:token \`${root_token}\``);
 
-tokens.set('aahhhh le token ça mere', { name: 'staff 1', claimed: false })
-tokens.set('aahhhh le token ça mere1', { name: 'staff 2', claimed: true })
-tokens.set('aahhhh le token ça mere2', { name: 'staff 3', claimed: true })
-tokens.set('aahhhh le token ça mere3', { name: 'staff 4', claimed: false })
+const client = await pg()
+
+const response = await client.query<{
+    token: string, name: string, claimed: boolean
+}>(
+    `SELECT token, name, claimed FROM administrateurs`
+);
+
+response.rows.forEach(row => {
+    tokens.set(row.token, { name: row.name, claimed: row.claimed })
+})
+
+client.release()
+
+export const sauvegarderAdministrateurs = async () => {
+    const client = await pg();
+    
+    const keys = [...tokens.keys()]
+        .map((_, i) => `($${ 3 * i + 1 }, $${ 3 * i + 2}, $${ 3 * i + 3 })`)
+        .join(',')
+    const query = `INSERT INTO administrateurs (token, name, claimed)
+        VALUES ${keys}
+        ON CONFLICT DO NOTHING;`
+    const data = [...tokens.keys()]
+            .map(key => {
+            const meta = tokens.get(key)!
+            return [key, meta.name, meta.claimed]
+        })
+        .flat(1)
+    
+    
+    client.query(
+        query,
+        data
+    );
+    
+    client.release()
+}
 
 export default (token: string): boolean => token === admin || tokens.has(token)

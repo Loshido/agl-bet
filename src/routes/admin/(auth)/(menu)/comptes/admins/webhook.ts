@@ -7,7 +7,7 @@ export default async (token: string, name: string) => {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            "content": `Lien pour \`${name}\` (accès admin à AGL - bet)\n`
+            "content": `Accès pour \`${name}\`\n`
             + `\`http://localhost:5173/admin/auth/${token}\``,
             "embeds": null,
             "username": "AGL - Bet",
