@@ -106,7 +106,10 @@ const actionCredit = server$(async (id: number, action: 'refuser' | 'accepter') 
 export default component$(() => {
     const credits = useCredits()
     const action = useSignal<null | number>(null)
-    return <div class="my-6 flex flex-col gap-6">
+    return <div class="flex flex-col gap-4">
+        <h1 class="font-bold text-2xl my-4">
+            Validation des crédits
+        </h1>
         {
             credits.value.length === 0 && <p>
                 👀 Il n'y a pas de crédits en attente...

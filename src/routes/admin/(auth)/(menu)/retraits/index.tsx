@@ -38,6 +38,9 @@ const actionRetrait = server$(async (id: number) => {
 export default component$(() => {
     const retraits = useRetraits()
     return <>
+        <h1 class="font-bold text-2xl my-4">
+            Confirmation des retraits
+        </h1>
         {
             retraits.value.length === 0 && <p>
                 👀 Il n'y a pas de retraits en attente...
