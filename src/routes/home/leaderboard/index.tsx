@@ -1,5 +1,6 @@
 import { component$ } from "@builder.io/qwik";
 import { routeLoader$ } from "@builder.io/qwik-city";
+import Podium from "~/components/classement/podium";
 
 interface Utilisateur {
     pseudo: string,
@@ -26,9 +27,10 @@ export const useClassement = routeLoader$(async () => {
 export default component$(() => {
     const classement = useClassement()
     return <>
-        <h1>
-            Podium
-        </h1>
+        <div class="mx-auto my-4 md:my-8">
+            <Podium 
+                players={classement.value.slice(0, 3) as [Utilisateur, Utilisateur, Utilisateur]} />
+        </div>
         <div class="grid grid-cols-7 font-black">
             <p class="font-sobi text-sm text-center">
                 N°
@@ -41,10 +43,12 @@ export default component$(() => {
             </p>
         </div>
         {
-            classement.value.map((joueur, i) => <div
+            classement.value
+                .slice(2)
+                .map((joueur, i) => <div key={i}
                 class="grid grid-cols-7">
                 <p class="font-light text-pink text-sm text-center">
-                    { i + 1 }
+                    { i + 4 }
                 </p>
                 <p class="font-bold col-span-4">
                     { joueur.pseudo }

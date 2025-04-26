@@ -34,7 +34,7 @@ export default component$(() => {
     const dialog = useSignal(false)
     return <>
         {
-            users.value.map(user => <div
+            users.value.map((user, i) => <div key={i}
                 class="flex flex-row items-center px-2 gap-2">
                 <p title={user[2] ? 'Ce jeton a déjà été réclamé' : 'Ce jeton est en attente'}>
                     <span class="font-bold mx-2"> {user[1]} </span>

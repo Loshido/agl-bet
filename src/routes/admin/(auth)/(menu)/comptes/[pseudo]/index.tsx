@@ -1,5 +1,5 @@
 import { component$ } from "@builder.io/qwik";
-import { routeLoader$, useLocation } from "@builder.io/qwik-city";
+import { DocumentHead, routeLoader$, useLocation } from "@builder.io/qwik-city";
 import Button from "~/components/admin/button";
 
 interface Utilisateur {
@@ -10,13 +10,12 @@ interface Utilisateur {
 interface Credit {
     credit: number,
     du: number,
-    interets: number,
     at: Date,
     status: 'rembourse' | 'remboursement' | 'en attente'
 }
 
 interface Retrait {
-    raison: string,
+    agl: number,
     effectif: boolean,
     at: Date
 }
@@ -31,7 +30,7 @@ const queries = {
         SELECT pseudo, agl FROM utilisateurs WHERE pseudo = $1
     `,
     credits: `
-        SELECT credit, du, interets, at, status
+        SELECT credit, du, at, status
         FROM credits WHERE pseudo = $1
         ORDER BY at DESC
     `,
@@ -91,33 +90,46 @@ export default component$(() => {
                         Modifier
                     </Button>
                 </div>
-                <h2 class="font-semibold text-xl my-2">
+                <hr class="my-4 border-white/25 rounded-md"/>
+
+                <h2 class="font-black text-xl my-2">
                     Crédits
                 </h2>
                 <div class="flex flex-col gap-1 w-full">
+                    <div class="grid grid-cols-7 font-bold py-2">
+                        <p class="text-center">
+                            Heure
+                        </p>
+                        <p class="col-span-2 text-center">
+                            Crédit
+                        </p>
+                        <p class="col-span-2 text-center">
+                            Dû
+                        </p>
+                        <div class="col-span-2 text-center">
+                            Status
+                    </div>
+                    </div>
                     {
                         profile.value.credits.map((credit, i) => <div key={i} 
-                            class="grid grid-cols-8">
+                            class="grid grid-cols-7">
                             <p class="text-sm text-center">
                                 { credit.at.toLocaleTimeString(undefined, { 
                                     timeStyle: 'short' 
                                 }) }
                             </p>
-                            <p class="font-sobi text-xs col-span-2">
+                            <p class="font-sobi text-xs col-span-2 text-center">
                                 { credit.credit } <span class=" text-pink">
                                     agl
                                 </span>
                             </p>
-                            <p class="text-center text-xs">
-                                { Math.round(credit.interets * 100) }%
-                            </p>
-                            <p class="font-sobi text-xs col-span-2">
+                            <p class="font-sobi text-xs col-span-2 text-center">
                                 { credit.du } <span class="text-pink">
                                     agl
                                 </span>
                             </p>
-                            <div class="flex items-center justify-center h-full w-full">
-                                <p class={["px-1 py-0.5 text-sm col-span-2 rounded-sm",
+                            <div class="flex items-center justify-center h-full w-full  col-span-2">
+                                <p class={["px-1 py-0.5 text-sm rounded-sm",
                                     credit.status === 'rembourse' && 'bg-emerald-600',
                                     credit.status === 'remboursement' && 'bg-sky-600',
                                     credit.status === 'en attente' && 'bg-gray-500'
@@ -130,7 +142,50 @@ export default component$(() => {
                         </div>)
                     }
                 </div>
+
+                <hr class="my-4 border-white/25 rounded-md"/>
+
+                <h2 class="font-black text-xl my-2">
+                    Retraits
+                </h2>
+                <div class="flex flex-col gap-1 w-full">
+                    <div class="grid grid-cols-4 font-bold py-2">
+                        <p class="text-center">
+                            Heure
+                        </p>
+                        <p class="col-span-2 text-center">
+                            Argents
+                        </p>
+                        <div class="col-span text-center">
+                            Confirmation
+                    </div>
+                    </div>
+                    {
+                        profile.value.retraits.map((retrait, i) => <div key={i} 
+                            class="grid grid-cols-4">
+                            <p class="text-sm text-center">
+                                { retrait.at.toLocaleTimeString(undefined, { 
+                                    timeStyle: 'short' 
+                                }) }
+                            </p>
+                            <p class="font-sobi text-xs col-span-2 text-center">
+                                { retrait.agl } <span class=" text-pink">
+                                    agl
+                                </span>
+                            </p>
+                            <p class="text-sm text-center">
+                                { retrait.effectif ? 'confirmé' : 'en attente' }
+                            </p>
+                        </div>)
+                    }
+                </div>
             </>
         }
     </div>
 })
+
+export const head: DocumentHead = {
+    frontmatter: {
+        back_url: '/admin/comptes/'
+    }
+}

@@ -109,8 +109,8 @@ export default component$(() => {
 
     if(head.frontmatter.home_layout === false) return <Slot/>
 
-    return <section class="p-4 lg:p-16 md:p-8 flex flex-col gap-2 lg:gap-4 xl:gap-5">
-        <header class="flex flex-row items-center justify-between text-xl font-sobi">
+    return <section class="p-4 lg:p-16 md:p-8 flex flex-col gap-2 lg:gap-4 xl:gap-5 overflow-hidden">
+        <header class="flex flex-row items-center justify-between text-xl font-sobi z-10">
             <nav class="flex flex-row items-center gap-2">
                 {
                     liens.map((lien, i) => <Link key={i} href={lien.path}

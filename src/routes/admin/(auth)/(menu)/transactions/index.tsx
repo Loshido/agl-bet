@@ -26,6 +26,7 @@ export default component$(() => {
         </h1>
         {
             transactions.value.map(tr => <Link
+                key={tr.pseudo}
                 class="py-1.5 px-2 font-bold text-center hover:bg-white/50
                 bg-white/25 cursor-pointer select-none rounded-sm"
                 href={`/admin/transactions/${ tr.pseudo }`}>
