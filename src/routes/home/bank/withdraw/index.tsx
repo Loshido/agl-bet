@@ -74,7 +74,7 @@ export default component$(() => {
     const message = useSignal('')
     const retrait = useRetrait()
 
-    return <section class="w-svw h-svh flex flex-col gap-4 p-2 lg:px-80">
+    return <section class="flex flex-col gap-4 p-2 lg:px-80">
         <header class="w-full flex flex-row items-center justify-center p-4 relative">
             <Link class="p-2 rounded-md flex flex-row items-center gap-2 
                 bg-white/25 hover:bg-white/50

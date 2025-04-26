@@ -10,7 +10,7 @@ interface Retrait {
 }
 
 import pg from "~/lib/pg";
-export const useRetraits = routeLoader$(async ctx => {
+export const useRetraits = routeLoader$(async () => {
     const client = await pg()
 
     const response = await client.query<Retrait>(

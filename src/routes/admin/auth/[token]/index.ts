@@ -1,4 +1,4 @@
-import { RequestHandler } from "@builder.io/qwik-city";
+import type { RequestHandler } from "@builder.io/qwik-city";
 
 import { tokens } from "~/routes/admin/auth";
 export const onGet: RequestHandler = async ctx => {

@@ -1,6 +1,5 @@
 import { component$ } from "@builder.io/qwik";
 import { Link, routeLoader$ } from "@builder.io/qwik-city";
-import Button from "~/components/admin/button";
 
 import pg from "~/lib/pg";
 interface Utilisateur {
@@ -8,7 +7,7 @@ interface Utilisateur {
     agl: number
 }
 
-export const useUtilisateurs = routeLoader$(async ctx => {
+export const useUtilisateurs = routeLoader$(async () => {
     const client = await pg();
 
     const utilisateurs = await client.query<Utilisateur>(

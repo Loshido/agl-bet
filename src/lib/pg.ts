@@ -5,6 +5,7 @@ const secret = process.env.POSTGRES
 if(!secret) throw new Error('POSTGRES introuvable')
 
 let connections = 0
+let count = 0;
 const pool = new Pool({
     connectionString: secret,
     max: 20,
@@ -14,11 +15,12 @@ const pool = new Pool({
 
 pool.on('acquire', () => {
     connections += 1;
-    console.info(`[db] (${connections}) 👀 connection opened`)
+    count += 1
+    console.info(`[db] (${connections}) 👀 connection opened (${count})`)
 })
 pool.on('release', () => {
     connections -= 1;
-    console.info(`[db] (${connections}) 👀 connection released`)
+    console.info(`[db] (${connections}) 👀 connection released (${count})`)
 })
 
 export default (): Promise<PoolClient> => pool.connect();

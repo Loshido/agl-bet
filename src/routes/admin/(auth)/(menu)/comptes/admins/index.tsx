@@ -3,7 +3,7 @@ import { routeLoader$, server$ } from "@builder.io/qwik-city";
 import Dialog from "~/components/Dialog";
 
 import { tokens, sauvegarderAdministrateurs } from "~/routes/admin/auth";
-export const useAdminAccounts = routeLoader$(ctx => {
+export const useAdminAccounts = routeLoader$(() => {
     const users: [string, string, boolean][] = [];
     tokens.forEach((meta, token) => {
         users.push([token, meta.name, meta.claimed]);

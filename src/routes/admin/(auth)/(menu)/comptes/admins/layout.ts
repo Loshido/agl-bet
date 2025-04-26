@@ -1,4 +1,4 @@
-import { RequestHandler } from "@builder.io/qwik-city";
+import type { RequestHandler } from "@builder.io/qwik-city";
 
 export const onRequest: RequestHandler = ctx => {
     const identity =  ctx.sharedMap.get('identity') as undefined | 'root' | string

@@ -9,19 +9,16 @@ export const tokens = new Map<string, { name: string, claimed: boolean }>()
 export const root_token = admin
 console.log(`[admin] root:token \`${root_token}\``);
 
-const client = await pg()
-
-const response = await client.query<{
-    token: string, name: string, claimed: boolean
-}>(
+type Token = { token: string, name: string, claimed: boolean };
+pg().then(client => client.query<Token>(
     `SELECT token, name, claimed FROM administrateurs`
-);
-
-response.rows.forEach(row => {
-    tokens.set(row.token, { name: row.name, claimed: row.claimed })
-})
-
-client.release()
+).then(response => {
+    response.rows.forEach(row => {
+        tokens.set(row.token, { name: row.name, claimed: row.claimed })
+    })
+    
+    client.release()
+}))
 
 export const sauvegarderAdministrateurs = async () => {
     const client = await pg();
@@ -47,5 +44,3 @@ export const sauvegarderAdministrateurs = async () => {
     
     client.release()
 }
-
-export default (token: string): boolean => token === admin || tokens.has(token)

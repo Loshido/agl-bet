@@ -6,7 +6,7 @@ interface Transaction {
 }
 
 import pg from "~/lib/pg";
-export const useTransactions = routeLoader$(async ctx => {
+export const useTransactions = routeLoader$(async () => {
     const client = await pg()
 
     const response = await client.query<Transaction>(

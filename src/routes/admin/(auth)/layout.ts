@@ -5,7 +5,7 @@ export const onRequest: RequestHandler = async ctx => {
     const cookie = ctx.cookie.get('admin')
     const root = cookie && cookie.value === root_token
     const authorized = cookie && tokens.has(cookie.value)
-    if(!cookie && !(root || authorized)) {
+    if(!cookie || !(root || authorized)) {
         throw ctx.error(401, "Unauthorized")
     }
 

@@ -14,7 +14,7 @@ interface Credit {
     du: number
 }
 
-export const useCredits = routeLoader$(async ctx => {
+export const useCredits = routeLoader$(async () => {
 
     const client = await pg()
 

@@ -8,7 +8,7 @@ interface UtilisateurEnAttente {
     createdat: Date
 }
 
-export const useUtilisateurEnAttente = routeLoader$(async ctx => {
+export const useUtilisateurEnAttente = routeLoader$(async () => {
     const client = await pg();
 
     const utilisateurs = await client.query<UtilisateurEnAttente>(

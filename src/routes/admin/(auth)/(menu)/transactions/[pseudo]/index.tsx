@@ -1,5 +1,5 @@
 import { component$ } from "@builder.io/qwik";
-import { DocumentHead, routeLoader$, useLocation } from "@builder.io/qwik-city";
+import { type DocumentHead, routeLoader$, useLocation } from "@builder.io/qwik-city";
 
 interface Transaction {
     agl: number,
