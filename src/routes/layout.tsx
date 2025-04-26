@@ -15,7 +15,7 @@ export const onGet: RequestHandler = async ({ cacheControl }) => {
 
 export const onRequest: RequestHandler = async ctx => {
     const token = ctx.cookie.get('token')
-    if(!ctx.url.pathname.startsWith('/home') && token) {
+    if(ctx.url.pathname === '/' && token) {
         const payload = await verify(token.value, ctx.env)
         if(payload) throw ctx.redirect(302, '/home')
     }
