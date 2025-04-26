@@ -1,5 +1,5 @@
-import { component$ } from "@builder.io/qwik";
-import { type DocumentHead, routeLoader$, useLocation } from "@builder.io/qwik-city";
+import { component$, useSignal } from "@builder.io/qwik";
+import { type DocumentHead, routeLoader$, server$, useLocation } from "@builder.io/qwik-city";
 import Button from "~/components/admin/button";
 
 interface Utilisateur {
@@ -42,6 +42,32 @@ const queries = {
 }
 
 import pg from "~/lib/pg";
+import { admin, tokens } from "~/routes/admin/auth";
+import { users } from "~/lib/cache";
+const modifyAGL = server$(async function(pseudo: string, agl: number) {
+    const token = this.cookie.get('admin');
+    const administrateur = admin === token?.value
+        ? { name: 'root' }
+        : tokens.get(token?.value || '')
+    if(!administrateur) {
+        console.log(token)
+        return
+    }
+
+    const client = await pg();
+
+    await client.query(`
+        UPDATE utilisateurs SET agl = $2
+        WHERE pseudo = $1`,
+        [pseudo, agl]
+    );
+    console.log(`[admin] ${ pseudo } a désormais ${agl} agl`
+        + ` (${ administrateur.name })`)
+    await users.removeItem(pseudo)
+
+    client.release()
+})
+
 export const useProfile = routeLoader$(async ctx => {
     const pseudo = ctx.params.pseudo
     const client = await pg()
@@ -66,6 +92,7 @@ export const useProfile = routeLoader$(async ctx => {
 export default component$(() => {
     const loc = useLocation()
     const profile = useProfile()
+    const entree = useSignal('')
 
     return <div>
         <h1 class="font-bold text-2xl my-4">
@@ -79,14 +106,20 @@ export default component$(() => {
             : <>
                 <div class="p-2 grid grid-cols-3 gap-2 items-center">
                     <p class="col-span-2 font-sobi text-2xl">
-                        <span contentEditable="true" class="outline-none">
+                        <span contentEditable="true" class="outline-none"
+                            onInput$={(_, t) => entree.value = t.innerText}>
                             {profile.value.agl}
                         </span>
                         <span class="text-xs text-pink mx-2">
                             agl
                         </span>
                     </p>
-                    <Button>
+                    <Button onClick$={async () => {
+                        const agl = parseInt(entree.value)
+                        if(agl >= 0) {
+                            await modifyAGL(profile.value.pseudo, agl)
+                        }
+                    }}>
                         Modifier
                     </Button>
                 </div>

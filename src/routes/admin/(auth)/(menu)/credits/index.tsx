@@ -40,7 +40,7 @@ interface LigneCredit {
     status: string
 }
 
-import { credits as creditsCache } from "~/lib/cache";
+import { credits as creditsCache, users } from "~/lib/cache";
 const actionCredit = server$(async (id: number, action: 'refuser' | 'accepter') => {
     const client = await pg();
 
@@ -74,7 +74,6 @@ const actionCredit = server$(async (id: number, action: 'refuser' | 'accepter') 
             }
 
             const credit = response.rows[0]
-            console.log(credit)
             await client.query(
                 `UPDATE credits
                 SET status = 'remboursement'
@@ -95,6 +94,7 @@ const actionCredit = server$(async (id: number, action: 'refuser' | 'accepter') 
 
             await client.query('COMMIT')
             await creditsCache.removeItem(credit.pseudo)
+            await users.removeItem(credit.pseudo)
         } catch(e) {
             await client.query('ROLLBACK')
         }
