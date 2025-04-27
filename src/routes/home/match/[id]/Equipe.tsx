@@ -1,4 +1,4 @@
-import { PropsOf } from "@builder.io/qwik";
+import type { PropsOf } from "@builder.io/qwik";
 import Equipe from "~/components/equipes/equipe";
 
 type Props = {

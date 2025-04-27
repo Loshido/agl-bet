@@ -11,6 +11,10 @@ import { verify } from "~/lib/jwt";
 import { users } from "~/lib/cache"
 import pg from "~/lib/pg";
 export const onRequest: RequestHandler = async ctx => {
+    if(ctx.url.searchParams.has('delete-cache')) {
+        ctx.cookie.delete('transactions')
+    }
+
     const token = ctx.cookie.get('token');
     if(!token) throw ctx.redirect(302, '/');
     

@@ -20,7 +20,7 @@ export const useMatch = routeLoader$(async ctx => {
     if(!response.rowCount) {
         client.release()
         return null
-    };
+    }
 
     const paris = await client.query<Pari>(
         `SELECT agl, equipe FROM paris
@@ -160,6 +160,7 @@ export default component$(() => {
 
         <div class="grid grid-cols-2 lg:grid-cols-3 gap-2 w-full min-h-96">
             { match.value.equipes.map(([equipe, agl]) => <Equipe
+                key={equipe}
                 equipe={equipe}
                 image={null}
                 cote={agl > 0 ? Math.floor(match.value.agl / agl * 100) / 100 : 0}
@@ -195,7 +196,7 @@ export default component$(() => {
                 <button class="hidden sm:block h-full w-full rounded-md 
                     bg-white/25 py-2 text-center
                     transition-colors hover:bg-white/50"
-                    onClick$={() => {
+                    onClick$={() => {
                         if(pari.agl - 100 < 0) return
                         pari.agl -= 100
                         if(input.value) {

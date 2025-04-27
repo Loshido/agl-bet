@@ -18,11 +18,18 @@ pg().then(client => client.query<Token>(
     })
     
     client.release()
-}))
+})).catch(console.error)
 
 export const sauvegarderAdministrateurs = async () => {
     const client = await pg();
-    
+    if(tokens.size === 0) {
+        await client.query(
+            `DELETE FROM administrateurs`
+        )
+        client.release()
+        return
+    }
+
     const keys = [...tokens.keys()]
         .map((_, i) => `($${ 3 * i + 1 }, $${ 3 * i + 2}, $${ 3 * i + 3 })`)
         .join(',')

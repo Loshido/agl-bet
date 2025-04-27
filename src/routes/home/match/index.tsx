@@ -14,7 +14,7 @@ export interface Match {
 }
 
 import pg from "~/lib/pg";
-const useMatchs = routeLoader$(async () => {
+export const useMatchs = routeLoader$(async () => {
     const client = await pg();
 
     const response = await client.query<Match>(
@@ -35,6 +35,7 @@ export default component$(() => {
         {
             matchs.value.map(match => 
                 <Affiche
+                    key={match.id}
                     match={match}/>)
         }
     </>
