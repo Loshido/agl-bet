@@ -31,7 +31,8 @@ export default component$(() => {
             <Podium 
                 players={classement.value.slice(0, 3) as [Utilisateur, Utilisateur, Utilisateur]} />
         </div>
-        <div class="grid grid-cols-7 font-black">
+        <div class="grid grid-cols-7 font-black 
+            lg:px-48 xl:px-96">
             <p class="font-sobi text-sm text-center">
                 N°
             </p>
@@ -44,9 +45,9 @@ export default component$(() => {
         </div>
         {
             classement.value
-                .slice(2)
+                .slice(3)
                 .map((joueur, i) => <div key={i}
-                class="grid grid-cols-7">
+                class="grid grid-cols-7 lg:px-48 xl:px-96">
                 <p class="font-light text-pink text-sm text-center">
                     { i + 4 }
                 </p>

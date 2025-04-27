@@ -34,6 +34,19 @@ export const useEnvoyer = routeAction$(async (data, ctx) => {
     try {
         await client.query('BEGIN')
 
+        const ids = await client.query(
+            `SELECT pseudo FROM utilisateurs 
+            WHERE pseudo = $1 OR pseudo = $2`,
+            [origine, destinataire])
+        if(!ids.rowCount || ids.rowCount != 2) {
+            await client.query('ROLLBACK');
+            client.release()
+            return {
+                message: "L'utilisateur n'existe pas 🕵️",
+                status: false,
+            }
+        }
+
         const compte = await client.query(
             `UPDATE utilisateurs SET agl = agl - $1
             WHERE pseudo = $2 AND agl >= $1`,

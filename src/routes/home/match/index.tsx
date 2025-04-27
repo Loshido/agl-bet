@@ -2,18 +2,40 @@ import { component$ } from "@builder.io/qwik";
 import { routeLoader$ } from "@builder.io/qwik-city";
 import Affiche from "~/components/equipes/affiche";
 
-import { matchs } from "~/lib/queries";
-export const useMatch = routeLoader$(async () => {
-    return await matchs()
+export interface Match {
+    id: number,
+    titre: string,
+    informations: string,
+    ouverture: Date,
+    fermeture: Date,
+    participants: number,
+    agl: number,
+    equipes: string[]
+}
+
+import pg from "~/lib/pg";
+const useMatchs = routeLoader$(async () => {
+    const client = await pg();
+
+    const response = await client.query<Match>(
+        `SELECT * FROM matchs
+        WHERE fermeture > now() AND ouverture < now()
+        ORDER BY fermeture ASC`
+    )
+    
+    client.release()
+
+    return response.rows
 })
 
 export default component$(() => {
-    const matchs = useMatch()
-
+    const matchs = useMatchs()
 
     return <>
         {
-            matchs.value.map(match => <Affiche {...match} key={match.id} />)
+            matchs.value.map(match => 
+                <Affiche
+                    match={match}/>)
         }
     </>
 })

@@ -28,7 +28,10 @@ export const sauvegarderAdministrateurs = async () => {
         .join(',')
     const query = `INSERT INTO administrateurs (token, name, claimed)
         VALUES ${keys}
-        ON CONFLICT DO NOTHING;`
+        ON CONFLICT (token) 
+        DO UPDATE SET 
+            name = EXCLUDED.name,
+            claimed = EXCLUDED.claimed;`
     const data = [...tokens.keys()]
             .map(key => {
             const meta = tokens.get(key)!

@@ -1,24 +1,43 @@
 import { component$ } from "@builder.io/qwik";
 import Equipe from "./equipe";
 import { Link } from "@builder.io/qwik-city";
-import type { FullMatch } from "~/lib/cache";
-
 import Users from "~/assets/icons/users.svg?jsx"
-type Props = FullMatch
-export default component$((affiche: Props) => {
-    return <div class="w-full flex flex-col gap-1 bg-white/25 p-4 rounded-md relative">
+
+interface Match {
+    id: number,
+    titre: string,
+    informations: string,
+    ouverture: Date,
+    fermeture: Date,
+    participants: number,
+    agl: number,
+    equipes: string[]
+}
+
+type Props = { match: Match }
+export default component$(({ match }: Props) => {
+    return <div class="w-full flex flex-col gap-1 bg-white/10 p-4 rounded-md relative">
         <h2 class="font-sobi text-2xl">
-            { affiche.titre }
+            { match.titre }
         </h2>
         <p class="text-white/75 text-wrap">
-            { affiche.informations }
+            { match.informations }
+            <span class="text-white/75 text-xs italic"
+                title="Période d'ouverture des paris"> - { 
+                match.ouverture.toLocaleTimeString(undefined, {
+                    timeStyle: 'short'
+                }) } - { 
+                match.fermeture.toLocaleTimeString(undefined, {
+                    timeStyle: 'short'
+                })
+            }</span>
         </p>
-        <div class="flex flex-row items-center justify-center py-4 overflow-x-auto">
+        <div class="flex flex-row items-center justify-center py-4 overflow-x-auto gap-2">
             {
-                affiche.equipes.map((equipe, i, a) => <>
+                match.equipes.map((equipe, i, a) => <>
                     <Equipe class="py-2"
-                        nom={equipe.nom}
-                        image={equipe.image}/>
+                        nom={equipe}
+                        image={null}/>
                     {
                         i + 1 !== a.length && <span class="font-sobi text-pink">
                             VS
@@ -28,21 +47,21 @@ export default component$((affiche: Props) => {
             }
         </div>
         <div class="flex flex-row items-center gap-2">
-            <Users class="h-3 w-3"/>
+            <Users width={16} height={16} class="h-3 w-3"/>
             <p class="font-sobi text-lg">
-                { affiche.participants }
+                { match.participants }
             </p>
 
             <div class="h-5 w-0.5 mx-2 rounded-md bg-white/25"/>
 
             <p class="font-sobi text-lg">
-                { affiche.agl }
-                <span class="text-pink text-sm mx-1">
+                { match.agl }
+                <span class="text-pink text-sm mx-2">
                     agl
                 </span>
             </p>
         </div>
-        <Link href={`/match/${affiche.id}`}
+        <Link href={`/home/match/${match.id}`}
             class="absolute bottom-4 right-4 px-3 py-1.5 bg-pink rounded-md font-sobi">
             Parier
         </Link>
