@@ -1,4 +1,5 @@
 import type { RequestHandler } from "@builder.io/qwik-city";
+import cookie from "~/lib/cookie";
 
 import { tokens } from "~/routes/admin/auth";
 export const onGet: RequestHandler = async ctx => {
@@ -21,6 +22,8 @@ export const onGet: RequestHandler = async ctx => {
 
     ctx.cookie.set('admin', token, {
         path: '/admin/',
+        domain: cookie.domain,
+        secure: cookie.secure,
         expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 12)
     })
     console.info(`[admin] ${meta.name} a réclamé son jeton.`)

@@ -2,6 +2,7 @@ import { component$ } from "@builder.io/qwik";
 import { Form, routeAction$, z, zod$ } from "@builder.io/qwik-city";
 import Logo from "~/assets/logo.png?jsx"
 import { compare, hash } from "~/lib/argon";
+import cookie from "~/lib/cookie";
 import { sign } from "~/lib/jwt";
 import pg from "~/lib/pg";
 
@@ -45,7 +46,9 @@ export const useSubmit = routeAction$(async (form, ctx) => {
     }
 
     ctx.cookie.set('token', jwt, {
-        expires: new Date(Date.now() + 1000 * 60 * 60 * 12)
+        expires: new Date(Date.now() + 1000 * 60 * 60 * 12),
+        domain: cookie.domain,
+        secure: cookie.secure,
     });
     throw ctx.redirect(302, '/home/match?delete-cache')
 }, zod$({

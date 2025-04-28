@@ -63,6 +63,8 @@ export const useHistorique = routeLoader$(async ctx => {
 
     ctx.cookie.set('transactions', Date.now(), {
         path: '/home/bank/history',
+        domain: cookie.domain,
+        secure: cookie.secure,
         expires: new Date(Date.now() + 1000 * 60 * 60 * 4)
     })
     return {
@@ -72,6 +74,7 @@ export const useHistorique = routeLoader$(async ctx => {
 })
 
 import Back from "~/assets/icons/back.svg?jsx"
+import cookie from "~/lib/cookie";
 export default component$(() => {    
     const payload = useHistorique()
     const transactions = useStore<{

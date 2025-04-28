@@ -20,7 +20,9 @@ interface Payload {
 }
 export const onRequest: RequestHandler = async ctx => {
     if(ctx.url.searchParams.has('delete-cache')) {
-        ctx.cookie.delete('transactions')
+        ctx.cookie.delete('transactions', {
+            domain: cookie.domain,
+        })
     }
 
     const token = ctx.cookie.get('token');
@@ -77,6 +79,7 @@ export const onRequest: RequestHandler = async ctx => {
 
 import Live from "~/assets/icons/live.svg?jsx"
 import Leader from "~/assets/icons/leader.svg?jsx"
+import cookie from "~/lib/cookie";
 const liens = [
     {
         path: '/home/match/',
