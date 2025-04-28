@@ -1,0 +1,28 @@
+services:
+  web:
+    env_file:
+      - .env
+    build: .
+    container_name: agl-web
+    restart: always
+    ports:
+      - 80:80
+    depends_on:
+      - db
+      - cache
+  db:
+    env_file:
+      - .env
+    image: postgres:16.8-alpine3.20
+    container_name: agl-db
+    volumes:
+      - agl-db:/var/lib/postgresql/data
+    restart: always
+  cache:
+    container_name: agl-cache
+    image: redis:alpine
+    restart: always
+
+volumes:
+  agl-db:
+    name: agl-vol

@@ -1,5 +1,3 @@
-const WEBHOOK = `https://discord.com/api/webhooks/1364694557010300928/jPnDBnCJO4gQ7pzzMVmJI2Gzz2F2uTLX2wL2wciVbWnMOf05zHIUJkvj4J6drm3a7o78`
-
 const webhook = process.env.WEBHOOK
 if(!webhook) throw new Error('WEBHOOK introuvable')
 

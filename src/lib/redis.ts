@@ -7,5 +7,7 @@ const client = createClient({
     url: secret
 }).on('error', err => console.error('[redis]', err))
 
-client.connect()
+if(!process.env.BUILDING) {
+    client.connect()
+}
 export default client

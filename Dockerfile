@@ -6,6 +6,7 @@ RUN --mount=type=cache,target=./cache \
     npm i
 
 COPY . .
+ENV BUILDING=true
 RUN npm run build
 
 FROM oven/bun:alpine AS production
