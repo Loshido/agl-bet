@@ -84,10 +84,8 @@ export const retirer = server$(async function(id: number, match: number) {
         return false
     }
     client.release()
-    const rd = await redis();
-    await rd.hDel('payload', pseudo)
-    await rd.hDel('matchs', match.toString())
-    await rd.disconnect()
+    await redis.hDel('payload', pseudo)
+    await redis.hDel('matchs', match.toString())
     return true
 })
 

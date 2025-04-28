@@ -8,7 +8,7 @@ export interface SharedPayload {
 }
 
 import { verify } from "~/lib/jwt";
-import cache, { users } from "~/lib/cache"
+import cache from "~/lib/cache"
 import redis from "~/lib/redis";
 import pg from "~/lib/pg";
 
@@ -31,14 +31,11 @@ export const onRequest: RequestHandler = async ctx => {
     
     const data = await cache<Payload>(async () => {
         // Get data from cache
-        const rd = await redis()
+        const rd = redis
         const data = await rd.hGet('payload', payload.pseudo)
-        await rd.disconnect()
 
         if(!data) return ['no', async fresh => {
-            const rd = await redis()
             await rd.hSet('payload', payload.pseudo, JSON.stringify(fresh))
-            await rd.disconnect()
         }]
         const fresh = JSON.parse(data) as Payload
         return ['ok', fresh]

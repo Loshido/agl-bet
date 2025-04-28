@@ -22,7 +22,7 @@ export const useCredit = routeAction$(async (data, ctx) => {
                 WHERE pseudo = $1 AND status != 'rembourse'`,
                 [payload.pseudo]);
             if(prets.rowCount) {
-                const rd = await redis()
+                const rd = redis
                 const data = await rd.hGet('payload', payload.pseudo)
                 if(data) {
                     const user = JSON.parse(data)
@@ -31,7 +31,6 @@ export const useCredit = routeAction$(async (data, ctx) => {
                         credit: 'en attente'
                     }))
                 }
-                await rd.disconnect()
                 throw {
                     message: "Vous avez déjà un prêt en attente.",
                     status: false
@@ -68,9 +67,7 @@ export const useCredit = routeAction$(async (data, ctx) => {
             throw e
         }
         client.release()
-        const rd = await redis();
-        await rd.hDel('payload', payload.pseudo)
-        await rd.disconnect()
+        await redis.hDel('payload', payload.pseudo)
         return {
             message: "Votre prêt est en attente",
             status: true
@@ -185,7 +182,7 @@ export const useRemboursement = routeAction$(async (_, ctx) => {
         credit: undefined
     } as SharedPayload)
 
-    const rd = await redis()
+    const rd = redis
     const data = await rd.hGet('payload', payload.pseudo)
     if(data) {
         const user = JSON.parse(data)
@@ -195,7 +192,6 @@ export const useRemboursement = routeAction$(async (_, ctx) => {
             agl: payload.agl
         }))
     }
-    await rd.disconnect()
     return {
         message: "Votre crédit est remboursé.",
         status: true

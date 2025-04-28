@@ -48,9 +48,7 @@ export const useRetrait = routeAction$(async (data, ctx) => {
         )
         
         await client.query('COMMIT')
-        const rd = await redis();
-        await rd.hDel('payload', payload.pseudo)
-        await rd.disconnect()
+        await redis.hDel('payload', payload.pseudo)
     } catch(e) {
         await client.query('ROLLBACK')
         throw e

@@ -1,5 +1,5 @@
 import { component$, useSignal } from "@builder.io/qwik";
-import { type DocumentHead, routeLoader$, server$, useLocation } from "@builder.io/qwik-city";
+import { type DocumentHead, Link, routeLoader$, server$, useLocation } from "@builder.io/qwik-city";
 import Button from "~/components/admin/button";
 
 interface Utilisateur {
@@ -43,7 +43,6 @@ const queries = {
 
 import pg from "~/lib/pg";
 import { admin, tokens } from "~/routes/admin/auth";
-import { users } from "~/lib/cache";
 import redis from "~/lib/redis";
 const modifyAGL = server$(async function(pseudo: string, agl: number) {
     const token = this.cookie.get('admin');
@@ -51,24 +50,39 @@ const modifyAGL = server$(async function(pseudo: string, agl: number) {
         ? { name: 'root' }
         : tokens.get(token?.value || '')
     if(!administrateur) {
-        console.log(token)
         return
     }
 
     const client = await pg();
 
-    await client.query(`
-        UPDATE utilisateurs SET agl = $2
-        WHERE pseudo = $1`,
-        [pseudo, agl]
-    );
-    console.log(`[admin] ${ pseudo } a désormais ${agl} agl`
-        + ` (${ administrateur.name })`)
+    await client.query('BEGIN')
+    try {
+        const agls = await client.query<{ agl: number }>(
+            `SELECT agl FROM utilisateurs WHERE pseudo = $1`,
+            [pseudo]
+        )
+        if(!agls.rowCount) throw new Error("n'existe pas")
+
+        await client.query(
+            `INSERT INTO transactions (pseudo, agl, raison)
+            VALUES ($1, $2, $3)`,
+            [pseudo, agl - agls.rows[0].agl, "Action staff"]
+        )
+        await client.query(`
+            UPDATE utilisateurs SET agl = $2
+            WHERE pseudo = $1`,
+            [pseudo, agl]
+        );
+        console.log(`[admin] ${ pseudo } a désormais ${agl} agl`
+            + ` (${ administrateur.name })`)
+        
+        await client.query('COMMIT')
+    } catch(e) {
+        await client.query('ROLLBACK')
+    }
     
     client.release()
-    const rd = await redis();
-    await rd.hDel('payload', pseudo)
-    await rd.disconnect()
+    await redis.hDel('payload', pseudo)
 })
 
 export const useProfile = routeLoader$(async ctx => {
@@ -215,6 +229,15 @@ export default component$(() => {
                         </div>)
                     }
                 </div>
+
+                <hr class="my-4 border-white/25 rounded-md"/>
+                <Link 
+                    href={`/admin/transactions/${profile.value.pseudo}`}
+                    class="font-black text-xl my-2
+                    py-1.5 px-2 text-center hover:bg-white/50
+                    bg-white/25 cursor-pointer select-none rounded-sm">
+                    Transactions
+                </Link>
             </>
         }
     </div>

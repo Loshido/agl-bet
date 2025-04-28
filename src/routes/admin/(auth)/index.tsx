@@ -24,11 +24,6 @@ export default component$(() => {
         </Link>
         <Link class="text-4xl font-bold px-4 py-2 hover:bg-white/25 rounded-md
             cursor-pointer font-sobi transition-colors"
-            href="/admin/equipes">
-            Equipes
-        </Link>
-        <Link class="text-4xl font-bold px-4 py-2 hover:bg-white/25 rounded-md
-            cursor-pointer font-sobi transition-colors"
             href="/admin/retraits">
             Retraits
         </Link>

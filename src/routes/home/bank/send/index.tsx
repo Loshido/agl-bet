@@ -66,10 +66,8 @@ export const useEnvoyer = routeAction$(async (data, ctx) => {
         )
         
         await client.query('COMMIT')
-        const rd = await redis();
-        await rd.hDel('payload', origine)
-        await rd.hDel('payload', destinataire)
-        await rd.disconnect()
+        await redis.hDel('payload', origine)
+        await redis.hDel('payload', destinataire)
     } catch(e) {
         await client.query('ROLLBACK')
         client.release()

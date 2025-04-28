@@ -18,22 +18,28 @@ import cache from "~/lib/cache";
 import redis from "~/lib/redis";
 export const useMatchs = routeLoader$(async () => {
     return await cache<Match[]>(async () => {
-        const rd = await redis()
-
+        const rd = redis
         const matchs = await rd.hVals('matchs')
-        await rd.disconnect()
-        
-        if(matchs.length === 0) {
-            return ['no', async matchs => {
-                const rd = await redis()
-                matchs.forEach(async match => {
-                    await rd.hSet('matchs', match.id, JSON.stringify(match))
-                })
-                await rd.disconnect()
-            }]
+
+        if(matchs.length !== 0) {
+            try {
+                const parsed = matchs
+                    .map(match => JSON.parse(match))
+                    .map(match => ({
+                        ...match,
+                        ouverture: new Date(match.ouverture),
+                        fermeture: new Date(match.fermeture),
+                    })) as Match[]
+                return ['ok', parsed]
+            } catch(e) {
+                console.error('[redis] parsing Match failed')
+            }
         }
-        return ['ok', matchs
-            .map(match => JSON.parse(match)) as Match[]]
+        return ['no', async matchs => {
+            matchs.forEach(async match => {
+                await rd.hSet('matchs', match.id, JSON.stringify(match))
+            })
+        }]
     }, async () => {
         const client = await pg();
     

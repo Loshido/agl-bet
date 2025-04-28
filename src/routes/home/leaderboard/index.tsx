@@ -12,21 +12,17 @@ import pg from "~/lib/pg";
 import redis from "~/lib/redis";
 export const useClassement = routeLoader$(async () => {
     return await cache<Utilisateur[]>(async () => {
-        const rd = await redis()
+        const rd = redis
         const data = await rd.get('leaderboard')
-        await rd.disconnect()
         if(data) {
             const leaderboard = JSON.parse(data) as Utilisateur[]
             return ['ok', leaderboard]
         }
 
         return ['no', async leaderboard => {
-            const rd = await redis()
             await rd.set('leaderboard', JSON.stringify(leaderboard), {
                 EX: 10
             })
-
-            rd.disconnect()
         }]
     }, async () => {
         const client = await pg()

@@ -24,6 +24,7 @@ export default component$(() => {
         <h1 class="font-bold text-2xl my-4">
             Transactions des utilisateurs
         </h1>
+        <section class="flex flex-col gap-1">
         {
             transactions.value.map(tr => <Link
                 key={tr.pseudo}
@@ -33,5 +34,6 @@ export default component$(() => {
                 {tr.pseudo}
             </Link>)
         }
+        </section>
     </>
 })

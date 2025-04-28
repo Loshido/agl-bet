@@ -12,20 +12,26 @@ import redis from "~/lib/redis";
 import cache from "~/lib/cache";
 export const useMatch = routeLoader$(async ctx => {
     const match = await cache<Match | null>(async () => {
-        const rd = await redis()
+        const rd = redis
         const data = await rd.hGet('matchs', ctx.params.id);
-        await rd.disconnect()
 
         if(data) {
-            const match = JSON.parse(data) as Match
-            return ['ok', match]
+            try {
+                const match = JSON.parse(data)
+                const parsed = {
+                    ...match,
+                    ouverture: new Date(match.ouverture),
+                    fermeture: new Date(match.fermeture)
+                } as Match
+                return ['ok', parsed]
+            } catch(e) {
+                console.error('[redis] parsing Match failed')
+            }
         }
         return ['no', async match => {
             if(!match) return
             
-            const rd = await redis()
             await rd.hSet('matchs', ctx.params.id, JSON.stringify(match))
-            await rd.disconnect()
         }]
     }, async () => {
         const client = await pg();
@@ -115,10 +121,8 @@ export const parier = server$(async function(pari: number, equipe: string) {
         
         await client.query('COMMIT')
         client.release()
-        const rd = await redis();
-        await rd.hDel('payload', pseudo)
-        await rd.hDel('matchs', match)
-        await rd.disconnect()
+        await redis.hDel('payload', pseudo)
+        await redis.hDel('matchs', match)
     } catch(e) {
         console.error(`[match][^${pseudo}]`,e)
         await client.query('ROLLBACK')
