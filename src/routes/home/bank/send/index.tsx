@@ -2,7 +2,6 @@ import { component$, useStore } from "@builder.io/qwik";
 import { Link, routeAction$, z, zod$ } from "@builder.io/qwik-city";
 
 import pg from "~/lib/pg";
-import { users } from "~/lib/cache";
 import type { SharedPayload } from "~/routes/home/layout";
 export const useEnvoyer = routeAction$(async (data, ctx) => {
     const payload = ctx.sharedMap.get('payload') as SharedPayload | undefined
@@ -67,8 +66,10 @@ export const useEnvoyer = routeAction$(async (data, ctx) => {
         )
         
         await client.query('COMMIT')
-        await users.removeItem(origine)
-        await users.removeItem(destinataire)
+        const rd = await redis();
+        await rd.hDel('payload', origine)
+        await rd.hDel('payload', destinataire)
+        await rd.disconnect()
     } catch(e) {
         await client.query('ROLLBACK')
         client.release()
@@ -88,6 +89,7 @@ export const useEnvoyer = routeAction$(async (data, ctx) => {
 
 import Back from "~/assets/icons/back.svg?jsx"
 import { usePayload } from "../../layout";
+import redis from "~/lib/redis";
 export default component$(() => {    
     const payload = usePayload()
     const envoie = useEnvoyer()

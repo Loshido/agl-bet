@@ -44,6 +44,7 @@ const queries = {
 import pg from "~/lib/pg";
 import { admin, tokens } from "~/routes/admin/auth";
 import { users } from "~/lib/cache";
+import redis from "~/lib/redis";
 const modifyAGL = server$(async function(pseudo: string, agl: number) {
     const token = this.cookie.get('admin');
     const administrateur = admin === token?.value
@@ -63,9 +64,11 @@ const modifyAGL = server$(async function(pseudo: string, agl: number) {
     );
     console.log(`[admin] ${ pseudo } a désormais ${agl} agl`
         + ` (${ administrateur.name })`)
-    await users.removeItem(pseudo)
-
+    
     client.release()
+    const rd = await redis();
+    await rd.hDel('payload', pseudo)
+    await rd.disconnect()
 })
 
 export const useProfile = routeLoader$(async ctx => {

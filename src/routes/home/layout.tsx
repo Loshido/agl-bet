@@ -8,8 +8,16 @@ export interface SharedPayload {
 }
 
 import { verify } from "~/lib/jwt";
-import { users } from "~/lib/cache"
+import cache, { users } from "~/lib/cache"
+import redis from "~/lib/redis";
 import pg from "~/lib/pg";
+
+interface Payload {
+    agl: number,
+    badges: [],
+    reset?: true,
+    credit?: 'en attente' | 'remboursement'
+}
 export const onRequest: RequestHandler = async ctx => {
     if(ctx.url.searchParams.has('delete-cache')) {
         ctx.cookie.delete('transactions')
@@ -20,47 +28,53 @@ export const onRequest: RequestHandler = async ctx => {
     
     const payload = await verify(token.value, ctx.env)
     if(!payload) throw ctx.redirect(302, '/')
-        
-    if(await users.has(payload.pseudo)) {
-        const data = await users.getItem(payload.pseudo)
-        if(data) ctx.sharedMap.set('payload', {
-            pseudo: payload.pseudo,
-            agl: data.agl,
-            credit: data.credit
-        })
-
-        if(data?.reset) {
-            const reset_location = ctx.url;
-            reset_location.searchParams.append('delete-cache', '')
-            throw ctx.redirect(302, reset_location.toString())
-        }
-        return
-    }
     
-    const client = await pg()
-    const response = await client.query<{ agl: number }>(
-        `SELECT agl FROM utilisateurs WHERE pseudo = $1`,
-        [payload.pseudo]
-    )
-    const credits = await client.query<{ status: 'remboursement' | 'en attente' | 'rembourse'}>(
-        `SELECT status FROM credits WHERE pseudo = $1`, 
-        [payload.pseudo])
-    client.release()
+    const data = await cache<Payload>(async () => {
+        // Get data from cache
+        const rd = await redis()
+        const data = await rd.hGet('payload', payload.pseudo)
+        await rd.disconnect()
 
-    if(response.rowCount) {
+        if(!data) return ['no', async fresh => {
+            const rd = await redis()
+            await rd.hSet('payload', payload.pseudo, JSON.stringify(fresh))
+            await rd.disconnect()
+        }]
+        const fresh = JSON.parse(data) as Payload
+        return ['ok', fresh]
+    }, async () => {
+        // Get data from database
+        const client = await pg()
+        const response = await client.query<{ agl: number }>(
+            `SELECT agl FROM utilisateurs WHERE pseudo = $1`,
+            [payload.pseudo]
+        )
+        const credits = await client.query<{ status: 'remboursement' | 'en attente' | 'rembourse'}>(
+            `SELECT status FROM credits WHERE pseudo = $1`, 
+            [payload.pseudo])
+        client.release()
+
         const credit = credits.rowCount && credits.rows.some(row => row.status !== 'rembourse')
             ? credits.rows.find(row => row.status !== 'rembourse')!.status as 'remboursement' | 'en attente'
             : undefined
-        await users.setItem(payload.pseudo, {
+
+        return {
             agl: response.rows[0].agl,
             badges: [],
             credit
-        })
-        ctx.sharedMap.set('payload', {
-            pseudo: payload.pseudo,
-            agl: response.rows[0].agl,
-            credit
-        })
+        }
+    })
+
+    ctx.sharedMap.set('payload', {
+        pseudo: payload.pseudo,
+        agl: data.agl,
+        credit: data.credit
+    })
+
+    if(data.reset) {
+        const reset_location = ctx.url;
+        reset_location.searchParams.append('delete-cache', '')
+        throw ctx.redirect(302, reset_location.toString())
     }
 }
 

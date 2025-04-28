@@ -8,27 +8,47 @@ interface Pari {
 }
 
 import pg from "~/lib/pg";
+import redis from "~/lib/redis";
+import cache from "~/lib/cache";
 export const useMatch = routeLoader$(async ctx => {
-    const client = await pg();
+    const match = await cache<Match | null>(async () => {
+        const rd = await redis()
+        const data = await rd.hGet('matchs', ctx.params.id);
+        await rd.disconnect()
 
-    const response = await client.query<Match>(
-        `SELECT * FROM matchs
-        WHERE id = $1 AND ouverture < now() AND fermeture > now()`,
-        [ctx.params.id]
-    )
+        if(data) {
+            const match = JSON.parse(data) as Match
+            return ['ok', match]
+        }
+        return ['no', async match => {
+            if(!match) return
+            
+            const rd = await redis()
+            await rd.hSet('matchs', ctx.params.id, JSON.stringify(match))
+            await rd.disconnect()
+        }]
+    }, async () => {
+        const client = await pg();
     
-    if(!response.rowCount) {
+        const response = await client.query<Match>(
+            `SELECT * FROM matchs
+            WHERE id = $1 AND ouverture < now() AND fermeture > now()`,
+            [ctx.params.id]
+        )
         client.release()
-        return null
-    }
+        if(!response.rowCount) return null
 
+        return response.rows[0]
+    })
+    if(!match) return null
+
+    const client = await pg()
     const paris = await client.query<Pari>(
         `SELECT agl, equipe FROM paris
         WHERE match = $1`,
         [ctx.params.id]
     )
 
-    const match = response.rows[0]
     const equipes: { [equipe: string]: number } = {}
     
     match.equipes.forEach(equipe => equipes[equipe] = 0)
@@ -41,7 +61,7 @@ export const useMatch = routeLoader$(async ctx => {
     client.release()
 
     return {
-        ...response.rows[0],
+        ...match,
         equipes: Object.keys(equipes)
             .map(equipe => [
                 equipe, 
@@ -52,7 +72,6 @@ export const useMatch = routeLoader$(async ctx => {
     }
 })
 
-import { users } from "~/lib/cache";
 export const parier = server$(async function(pari: number, equipe: string) {
     const cookie = this.cookie.get('token')
     if(!cookie) return false
@@ -92,11 +111,14 @@ export const parier = server$(async function(pari: number, equipe: string) {
             WHERE id = $1`,
             [match, pari]
         )
-        await users.removeItem(pseudo)
         this.sharedMap.delete('payload')
         
         await client.query('COMMIT')
         client.release()
+        const rd = await redis();
+        await rd.hDel('payload', pseudo)
+        await rd.hDel('matchs', match)
+        await rd.disconnect()
     } catch(e) {
         console.error(`[match][^${pseudo}]`,e)
         await client.query('ROLLBACK')

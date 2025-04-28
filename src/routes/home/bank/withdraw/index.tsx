@@ -1,7 +1,6 @@
 import { component$, useSignal } from "@builder.io/qwik";
 import { Link, routeAction$, z, zod$ } from "@builder.io/qwik-city";
 
-import { users } from "~/lib/cache";
 import pg from "~/lib/pg";
 export const useRetrait = routeAction$(async (data, ctx) => {
     const payload = ctx.sharedMap.get('payload') as SharedPayload | undefined
@@ -49,7 +48,9 @@ export const useRetrait = routeAction$(async (data, ctx) => {
         )
         
         await client.query('COMMIT')
-        await users.removeItem(payload.pseudo)
+        const rd = await redis();
+        await rd.hDel('payload', payload.pseudo)
+        await rd.disconnect()
     } catch(e) {
         await client.query('ROLLBACK')
         throw e
@@ -67,6 +68,7 @@ export const useRetrait = routeAction$(async (data, ctx) => {
 
 import Back from "~/assets/icons/back.svg?jsx"
 import { type SharedPayload, usePayload } from "~/routes/home/layout";
+import redis from "~/lib/redis";
 export default component$(() => {    
     const payload = usePayload()
     const latest = useSignal(0)

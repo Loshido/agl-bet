@@ -34,8 +34,8 @@ export const useLive = routeLoader$(async ctx => {
     return response.rows
 })
 
-import { users } from "~/lib/cache";
-export const retirer = server$(async function(id: number) {
+import redis from "~/lib/redis";
+export const retirer = server$(async function(id: number, match: number) {
     const token = this.cookie.get('token')
     if(!token) return false
     const payload = decode(token.value)
@@ -62,7 +62,7 @@ export const retirer = server$(async function(id: number) {
             `UPDATE matchs SET 
             agl = agl - $2, participants = participants - 1
             WHERE id = $1`,
-            [id, pari.agl])
+            [match, pari.agl])
 
         await client.query(
             `INSERT INTO transactions (pseudo, agl, raison)
@@ -76,7 +76,6 @@ export const retirer = server$(async function(id: number) {
             WHERE pseudo = $1`,
             [pseudo, pari.agl]
         )
-        await users.removeItem(pseudo)
         
         await client.query('COMMIT')
     } catch {
@@ -85,6 +84,10 @@ export const retirer = server$(async function(id: number) {
         return false
     }
     client.release()
+    const rd = await redis();
+    await rd.hDel('payload', pseudo)
+    await rd.hDel('matchs', match.toString())
+    await rd.disconnect()
     return true
 })
 
@@ -117,7 +120,7 @@ export default component$(() => {
                 <div class="text-xs text-gray-500/75 w-fit hover:text-gray-500
                     py-1 cursor-pointer select-none uppercase font-bold" 
                     onClick$={async () => {
-                        const succes = await retirer(pari.id)
+                        const succes = await retirer(pari.id, pari.match)
                         if(succes) {
                             nav(undefined, {
                                 forceReload: true

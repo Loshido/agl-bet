@@ -14,18 +14,39 @@ export interface Match {
 }
 
 import pg from "~/lib/pg";
+import cache from "~/lib/cache";
+import redis from "~/lib/redis";
 export const useMatchs = routeLoader$(async () => {
-    const client = await pg();
+    return await cache<Match[]>(async () => {
+        const rd = await redis()
 
-    const response = await client.query<Match>(
-        `SELECT * FROM matchs
-        WHERE fermeture > now() AND ouverture < now()
-        ORDER BY fermeture ASC`
-    )
+        const matchs = await rd.hVals('matchs')
+        await rd.disconnect()
+        
+        if(matchs.length === 0) {
+            return ['no', async matchs => {
+                const rd = await redis()
+                matchs.forEach(async match => {
+                    await rd.hSet('matchs', match.id, JSON.stringify(match))
+                })
+                await rd.disconnect()
+            }]
+        }
+        return ['ok', matchs
+            .map(match => JSON.parse(match)) as Match[]]
+    }, async () => {
+        const client = await pg();
     
-    client.release()
-
-    return response.rows
+        const response = await client.query<Match>(
+            `SELECT * FROM matchs
+            WHERE fermeture > now() AND ouverture < now()
+            ORDER BY fermeture ASC`
+        )
+        
+        client.release()
+    
+        return response.rows
+    })
 })
 
 export default component$(() => {

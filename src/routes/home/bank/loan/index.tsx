@@ -3,7 +3,6 @@ import { component$ } from "@builder.io/qwik";
 import { routeAction$, zod$, z, Link, server$ } from "@builder.io/qwik-city";
 
 import pg from "~/lib/pg";
-import { users } from "~/lib/cache";
 import type { SharedPayload } from "~/routes/home/layout";
 export const useCredit = routeAction$(async (data, ctx) => {
     const payload = ctx.sharedMap.get('payload') as SharedPayload | undefined
@@ -23,13 +22,16 @@ export const useCredit = routeAction$(async (data, ctx) => {
                 WHERE pseudo = $1 AND status != 'rembourse'`,
                 [payload.pseudo]);
             if(prets.rowCount) {
-                const user = await users.getItem(payload.pseudo)
-                if(user) {
-                    await users.setItem(payload.pseudo, {
+                const rd = await redis()
+                const data = await rd.hGet('payload', payload.pseudo)
+                if(data) {
+                    const user = JSON.parse(data)
+                    await rd.hSet('payload', payload.pseudo, JSON.stringify({
                         ...user,
                         credit: 'en attente'
-                    })
+                    }))
                 }
+                await rd.disconnect()
                 throw {
                     message: "Vous avez déjà un prêt en attente.",
                     status: false
@@ -66,7 +68,9 @@ export const useCredit = routeAction$(async (data, ctx) => {
             throw e
         }
         client.release()
-        await users.removeItem(payload.pseudo)
+        const rd = await redis();
+        await rd.hDel('payload', payload.pseudo)
+        await rd.disconnect()
         return {
             message: "Votre prêt est en attente",
             status: true
@@ -181,12 +185,17 @@ export const useRemboursement = routeAction$(async (_, ctx) => {
         credit: undefined
     } as SharedPayload)
 
-    const user = await users.getItem(payload.pseudo)
-    if(user) await users.setItem(payload.pseudo, {
-        ...user,
-        credit: undefined,
-        agl: payload.agl
-    })
+    const rd = await redis()
+    const data = await rd.hGet('payload', payload.pseudo)
+    if(data) {
+        const user = JSON.parse(data)
+        await rd.hSet('payload', payload.pseudo, JSON.stringify({
+            ...user,
+            credit: undefined,
+            agl: payload.agl
+        }))
+    }
+    await rd.disconnect()
     return {
         message: "Votre crédit est remboursé.",
         status: true
@@ -200,6 +209,7 @@ import Attente from "./attente";
 import Demande from "./demande";
 import Remboursement from "./remboursement";
 import { decode } from "~/lib/jwt";
+import redis from "~/lib/redis";
 export default component$(() => {  
     const payload = usePayload();
 
