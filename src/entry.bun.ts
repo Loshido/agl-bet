@@ -14,7 +14,7 @@ const port = Number(Bun.env.PORT ?? 80);
 
 console.log(`[runtime] server started at http://localhost:${port}/`);
 
-Bun.serve({
+const server = Bun.serve({
     reusePort: true,
     async fetch(request: Request) {
         const staticResponse = await staticFile(request);
@@ -31,3 +31,5 @@ Bun.serve({
     },
     port,
 });
+
+process.addListener('SIGTERM', async () => await server.stop())

@@ -16,11 +16,12 @@ const pool = new Pool({
 pool.on('acquire', () => {
     connections += 1;
     count += 1
-    console.info(`[db] (${connections}) 👀 connection opened (${count})`)
 })
 pool.on('release', () => {
     connections -= 1;
-    console.info(`[db] (${connections}) 👀 connection released (${count})`)
+    if(connections > 0) {
+        console.info(`[db] ${connections} connections not released`)
+    }
 })
 
 export default (): Promise<PoolClient> => pool.connect();
