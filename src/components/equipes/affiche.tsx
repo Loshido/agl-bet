@@ -35,7 +35,7 @@ export default component$(({ match }: Props) => {
         <div class="flex flex-row items-center justify-center py-4 overflow-x-auto gap-2">
             {
                 match.equipes.map((equipe, i, a) => <>
-                    <Equipe class="py-2"
+                    <Equipe class="py-2" key={i}
                         nom={equipe}
                         image={null}/>
                     {

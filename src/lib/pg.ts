@@ -13,15 +13,17 @@ const pool = new Pool({
     connectionTimeoutMillis: 2000,
 })
 
+setInterval(() => {
+    console.log(`[db] ${count} connections opened since last check`)
+    console.log(`[db] ${connections} active connections`)
+}, 1000 * 60 * 60 * 4);
+
 pool.on('acquire', () => {
     connections += 1;
     count += 1
 })
 pool.on('release', () => {
     connections -= 1;
-    if(connections > 0) {
-        console.info(`[db] ${connections} connections not released`)
-    }
 })
 
 export default (): Promise<PoolClient> => pool.connect();
