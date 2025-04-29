@@ -13,10 +13,12 @@ const pool = new Pool({
     connectionTimeoutMillis: 2000,
 })
 
-setInterval(() => {
-    console.log(`[db] ${count} connections opened since last check`)
-    console.log(`[db] ${connections} active connections`)
-}, 1000 * 60 * 60 * 4);
+if(!process.env.BUILDING) {
+    setInterval(() => {
+        console.log(`[db] ${count} connections opened since last check`)
+        console.log(`[db] ${connections} active connections`)
+    }, 1000 * 60 * 60 * 4);
+}
 
 pool.on('acquire', () => {
     connections += 1;
