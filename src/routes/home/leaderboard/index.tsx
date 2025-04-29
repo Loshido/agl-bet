@@ -46,7 +46,10 @@ export default component$(() => {
     return <>
         <div class="mx-auto my-4 md:my-8">
             <Podium 
-                players={classement.value.slice(0, 3) as [Utilisateur, Utilisateur, Utilisateur]} />
+                players={
+                    classement.value.length < 3
+                    ? [{ pseudo: 'x', agl: 0 },{ pseudo: 'x', agl: 0 },{ pseudo: 'x', agl: 0 }]
+                    : classement.value.slice(0, 3) as [Utilisateur, Utilisateur, Utilisateur]} />
         </div>
         <div class="grid grid-cols-7 font-black 
             lg:px-48 xl:px-96">

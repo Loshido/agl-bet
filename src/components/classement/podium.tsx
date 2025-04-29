@@ -17,20 +17,20 @@ export default component$(({ players }: Podium) => {
         <div class="row-span-3 col-start-1 col-end-2 row-end-6
             flex items-center justify-center flex-col gap-2">
             <h3 class="font-sobi text-xs md:text-xl text-center">
-                { players[0].pseudo }
+                { players[1].pseudo }
             </h3>
             <p class="font-sobi text-xs md:text-base">
-                { players[0].agl }
+                { players[1].agl }
                 <span class="md:text-sm text-pink"> agl</span>
             </p>
         </div>
         <div class="row-span-3 col-start-2 col-end-3 row-end-4
             flex items-center justify-center flex-col gap-2">
             <h3 class="font-sobi text-xs md:text-xl text-center">
-                { players[1].pseudo }
+                { players[0].pseudo }
             </h3>
             <p class="font-sobi text-xs md:text-base">
-                { players[1].agl }
+                { players[0].agl }
                 <span class="md:text-sm text-pink"> agl</span>
             </p>
         </div>

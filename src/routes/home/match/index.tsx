@@ -58,6 +58,11 @@ export const useMatchs = routeLoader$(async () => {
 export default component$(() => {
     const matchs = useMatchs()
 
+    if(matchs.value.length === 0) return <section 
+        class="min-h-96 text-center my-auto text-xl">
+        Aucun match n'est sur le point de commencer 😧
+    </section>
+
     return <>
         {
             matchs.value.map(match => 

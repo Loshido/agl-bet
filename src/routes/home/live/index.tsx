@@ -24,7 +24,7 @@ export const useLive = routeLoader$(async ctx => {
             p.equipe, p.at,
             m.titre, m.informations
         FROM paris p
-        JOIN matchs m ON m.id = p.id
+        JOIN matchs m ON m.id = p.match
         WHERE pseudo = $1 AND fermeture > now()`,
         [payload.pseudo]
     )
@@ -92,10 +92,18 @@ export const retirer = server$(async function(id: number, match: number) {
 export default component$(() => {
     const live = useLive()
     const nav = useNavigate()
+
     return <>
-        <h1 class="text-2xl font-bold">
+        <h1 class="text-2xl font-bold my-2">
             Paris actifs
         </h1>
+        {
+            live.value.length === 0 ? <section 
+                class="min-h-96 text-center my-auto text-xl">
+                Vous n'avez aucun pari actif 🤑
+            </section>
+            : null
+        }
         {  
             live.value.map(pari => <div key={pari.id}
                 class="bg-white/10 p-4 rounded-md

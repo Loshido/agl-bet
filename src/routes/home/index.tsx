@@ -1,6 +1,5 @@
-import { component$ } from "@builder.io/qwik";
+import { RequestHandler } from "@builder.io/qwik-city";
 
-export default component$(() => {
-    return <>
-    </>
-})
+export const onGet: RequestHandler = ctx => {
+    throw ctx.redirect(302, '/home/match')
+}
