@@ -8,6 +8,7 @@ import pg from "~/lib/pg";
 
 type Response = { pseudo: string, pass: string, actif: boolean }
 export const useSubmit = routeAction$(async (form, ctx) => {
+    console.log(form, ctx)
     const client = await pg();
 
     const response = await client.query<Response>(
