@@ -1,7 +1,7 @@
 import { component$, useSignal, useStore } from "@builder.io/qwik";
 import Icon from "~/assets/icon.png?jsx"
 import parseDate from "./date"
-import { DocumentHead, server$, useNavigate } from "@builder.io/qwik-city";
+import { type DocumentHead, server$, useNavigate } from "@builder.io/qwik-city";
 
 interface Match {
     titre: string,

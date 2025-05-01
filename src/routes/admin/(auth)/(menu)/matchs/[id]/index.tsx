@@ -1,5 +1,5 @@
 import { component$, useSignal } from "@builder.io/qwik";
-import { DocumentHead, routeLoader$, server$ } from "@builder.io/qwik-city";
+import { type DocumentHead, routeLoader$, server$ } from "@builder.io/qwik-city";
 import pg from "~/lib/pg";
 import Equipe from "~/routes/home/match/[id]/Equipe";
 
@@ -122,7 +122,7 @@ export default component$(() => {
 })
 
 export const head: DocumentHead = {
-    frontmatter: {
+    frontmatter: {
         back_url: '/admin/matchs'
     }
 }
