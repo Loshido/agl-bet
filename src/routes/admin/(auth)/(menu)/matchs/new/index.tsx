@@ -1,7 +1,7 @@
 import { component$, useSignal, useStore } from "@builder.io/qwik";
 import Icon from "~/assets/icon.png?jsx"
 import parseDate from "./date"
-import { server$, useNavigate } from "@builder.io/qwik-city";
+import { DocumentHead, server$, useNavigate } from "@builder.io/qwik-city";
 
 interface Match {
     titre: string,
@@ -198,3 +198,9 @@ export default component$(() => {
         </div>
     </section>
 })
+
+export const head: DocumentHead = {
+    frontmatter: {
+        back_url: '/admin/matchs'
+    }
+}

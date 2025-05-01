@@ -103,7 +103,7 @@ export const parier = server$(async function(pari: number, equipe: string) {
         await client.query(
             `INSERT INTO transactions (pseudo, agl, raison)
             VALUES ($1, $2, $3)`,
-            [pseudo, -pari, "Pari pour " + equipe]
+            [pseudo, -pari, `Pari pour ${ equipe } (${match})`]
         )
         
         await client.query(

@@ -29,7 +29,9 @@ export const useMatchs = routeLoader$(async () => {
                         ...match,
                         ouverture: new Date(match.ouverture),
                         fermeture: new Date(match.fermeture),
-                    })) as Match[]
+                    }))
+                    .filter(match => 
+                        match.fermeture > Date.now()) as Match[]
                 return ['ok', parsed]
             } catch(e) {
                 console.error('[redis] parsing Match failed')
