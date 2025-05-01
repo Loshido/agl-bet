@@ -112,17 +112,22 @@ export const parier = server$(async function(pari: number, equipe: string) {
             [pseudo, pari, match, equipe]
         )
         
-        await client.query(
+        const matchs = await client.query<Match>(
             `UPDATE matchs SET participants = participants + 1, agl = agl + $2
-            WHERE id = $1`,
+            WHERE id = $1 RETURNING *`,
             [match, pari]
         )
+        if(!matchs.rowCount) {
+            throw new Error("Match non mis à jours.")
+        }
         this.sharedMap.delete('payload')
         
         await client.query('COMMIT')
         client.release()
         await redis.hDel('payload', pseudo)
-        await redis.hDel('matchs', match)
+
+        const new_match = matchs.rows[0]
+        await redis.hSet('matchs', new_match.id, JSON.stringify(new_match))
     } catch(e) {
         console.error(`[match][^${pseudo}]`,e)
         await client.query('ROLLBACK')

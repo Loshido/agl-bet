@@ -58,11 +58,15 @@ export const retirer = server$(async function(id: number, match: number) {
         }
         const pari = paris.rows[0]
 
-        await client.query(
+        const matchs = await client.query<unknown & { id: number }>(
             `UPDATE matchs SET 
             agl = agl - $2, participants = participants - 1
-            WHERE id = $1`,
+            WHERE id = $1
+            RETURNING *`,
             [match, pari.agl])
+        if(!matchs.rowCount) {
+            throw new Error("Le match n'a pas été mis à jours")
+        }
 
         await client.query(
             `INSERT INTO transactions (pseudo, agl, raison)
@@ -78,6 +82,8 @@ export const retirer = server$(async function(id: number, match: number) {
         )
         
         await client.query('COMMIT')
+        const new_match = matchs.rows[0]
+        await redis.hSet('matchs', new_match.id, JSON.stringify(new_match))
     } catch {
         await client.query('ROLLBACK')
         client.release()
@@ -85,7 +91,6 @@ export const retirer = server$(async function(id: number, match: number) {
     }
     client.release()
     await redis.hDel('payload', pseudo)
-    await redis.hDel('matchs', match.toString())
     return true
 })
 
