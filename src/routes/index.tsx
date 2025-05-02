@@ -55,13 +55,13 @@ export const onPost: RequestHandler = async ctx => {
         return
     } else {
         client.release()
-        if(await compare(form.pass, response.rows[0].pass) === false) {
-            ctx.send(400, "Erreur palpitante 👀")
-            return 
-        }
         if(!response.rows[0].actif) {
             ctx.send(401, 'Compte en attente')
             return
+        }
+        if(await compare(form.pass, response.rows[0].pass) === false) {
+            ctx.send(400, "Erreur palpitante 👀")
+            return 
         }
     }
 

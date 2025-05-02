@@ -33,3 +33,7 @@ const server = Bun.serve({
 });
 
 process.addListener('SIGTERM', async () => await server.stop())
+process.addListener('SIGKILL', async () => await server.stop())
+process.addListener('SIGABRT', async () => await server.stop())
+process.addListener('SIGQUIT', async () => await server.stop())
+process.addListener('exit', async () => await server.stop())

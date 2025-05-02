@@ -17,7 +17,7 @@ if(!process.env.BUILDING) {
     setInterval(() => {
         console.log(`[db] ${count} connections opened since last check`)
         console.log(`[db] ${connections} active connections`)
-    }, 1000 * 60 * 60 * 4);
+    }, 1000 * 60 * 60);
 }
 
 pool.on('acquire', () => {
