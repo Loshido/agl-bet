@@ -54,7 +54,7 @@ export const choisirGagnant = server$(async function(gagnant: string) {
             await client.query(
                 `UPDATE utilisateurs SET agl = agl + $2
                 WHERE pseudo = $1`,
-                [pseudo, cote * agl]
+                [pseudo, Math.ceil(cote * agl)]
             )
             await client.query(
                 `INSERT INTO transactions (pseudo, agl, raison)

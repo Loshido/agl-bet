@@ -85,7 +85,8 @@ export default component$(() => {
     const nav = useNavigate()
 
     return <section class="w-screen h-svh flex flex-col items-center justify-center gap-32">
-        <Logo alt="logo" class="max-h-48 w-auto"/>
+        <Logo loading="lazy" decoding="async" fetchPriority="low"
+            alt="logo" class="max-h-48 w-auto"/>
 
         <div class="flex flex-col gap-4 font-sobi *:outline-none">
             <input type="text" placeholder="Pseudo" name="pseudo"
