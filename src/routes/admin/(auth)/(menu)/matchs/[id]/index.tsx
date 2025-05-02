@@ -59,7 +59,7 @@ export const choisirGagnant = server$(async function(gagnant: string) {
             await client.query(
                 `INSERT INTO transactions (pseudo, agl, raison)
                 VALUES ($1, $2, $3)`,
-                [pseudo, cote * agl, `Pari gagnant (${this.params.id})`]
+                [pseudo, Math.ceil(cote * agl), `Pari gagnant (${this.params.id})`]
             )
             await redis.hDel('payload', pseudo)
         }
