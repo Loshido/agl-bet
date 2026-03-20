@@ -1,20 +1,17 @@
-FROM node:lts-alpine AS build
-WORKDIR /app
-
-COPY package*.json ./
-RUN --mount=type=cache,target=./cache \
-    npm i
-
+FROM oven/bun:canary AS builder
+WORKDIR /build
 COPY . .
-ENV BUILDING=true
-RUN npm run build
+
+RUN bun i
+RUN bun run build
 
 FROM oven/bun:alpine AS production
 WORKDIR /app
 
-COPY --from=build /app/server server
-COPY --from=build /app/dist dist
+COPY --from=builder /build/server server
+COPY --from=builder /build/dist dist
 
-ENV PORT=80
 EXPOSE 80
 ENTRYPOINT [ "bun", "server/entry.bun.js" ]
+
+LABEL org.opencontainers.image.source=https://github.com/Loshido/agl-bet

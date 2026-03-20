@@ -1,13 +1,21 @@
 services:
   db:
+    # postgres://postgres:password@db:5432/postgres
     env_file:
       - .env
-    ports:
-      - 5432:5432
     image: postgres:18-alpine
     container_name: agl-db
     volumes:
+     - ./db/:/docker-entrypoint-initdb.d/
       - agl-db:/var/lib/postgresql/data
+    restart: always
+  web:
+    env_file:
+      - .env
+    ports:
+     - 80:80
+    image: ghcr.io/loshido/agl-bet
+    container_name: agl-bet
     restart: always
 
 volumes:

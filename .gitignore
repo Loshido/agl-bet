@@ -3,6 +3,6 @@
 
 node_modules
 .env
-
+**/.cache
 **/.DS_Store
 **/tsconfig.tsbuildinfo

@@ -2,7 +2,7 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "BUILDING=true qwik build",
+        "build": "qwik build",
         "build.client": "vite build",
         "build.preview": "vite build --ssr src/entry.preview.tsx",
         "build.server": "vite build -c adapters/bun.ts",
