@@ -12,7 +12,7 @@ export const useUtilisateurs = routeLoader$(async () => {
 
     const utilisateurs = await client.query<Utilisateur>(
         `SELECT pseudo, agl FROM utilisateurs
-        WHERE actif = true`
+        WHERE roles ? 'user'`
     )
 
     client.release()
@@ -23,8 +23,8 @@ export default component$(() => {
     const utilisateurs = useUtilisateurs()
     return <>
         {
-            utilisateurs.value.map((utilisateur, i) => <div 
-                key={i}
+            utilisateurs.value.map(utilisateur => <div 
+                key={utilisateur.pseudo}
                 class="grid grid-cols-4 gap-2 *:transition-colors items-center">
                 <p class="col-span-2">
                     {utilisateur.pseudo} 
@@ -33,7 +33,7 @@ export default component$(() => {
                     {utilisateur.agl} <span class="text-xs text-pink">agl</span>
                 </p>
                 <Link class="py-1.5 px-2 font-bold text-center hover:bg-white/50 
-                    bg-white/25 cursor-pointer select-none rounded-sm"
+                    bg-white/25 cursor-pointer select-none rounded-sm" prefetch={false}
                     href={`/admin/comptes/${ utilisateur.pseudo }`}>
                     Voir
                 </Link>

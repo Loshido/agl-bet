@@ -70,5 +70,5 @@ export default component$(() => {
     })
 
     if(head.frontmatter.home_layout === false) return <Slot/>
-    return <HomeLayout location={loc} agl={meta.agl} />
+    return <HomeLayout location={loc} agl={meta.agl} roles={meta.roles} />
 })

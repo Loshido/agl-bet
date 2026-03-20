@@ -29,7 +29,7 @@ export default component$(() => {
     const loc = useLocation()
     const transactions = useTransaction()
     return <>
-        <h1 class="font-bold text-2xl my-4">
+        <h1 class="font-bold text-2xl my-2">
             Transactions de {loc.params.pseudo}
         </h1>
         {

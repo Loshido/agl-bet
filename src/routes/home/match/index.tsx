@@ -1,4 +1,4 @@
-import { component$ } from "@builder.io/qwik";
+import { component$, useStore } from "@builder.io/qwik";
 import { routeLoader$ } from "@builder.io/qwik-city";
 import Affiche from "~/components/equipes/affiche";
 
@@ -29,16 +29,17 @@ export const useMatchs = routeLoader$(async () => {
 })
 
 export default component$(() => {
-    const matchs = useMatchs()
+    const signal = useMatchs()
+    const matchs = useStore(signal.value)
 
-    if(matchs.value.length === 0) return <section 
+    if(matchs.length === 0) return <section 
         class="min-h-96 text-center my-auto text-xl">
         Aucun match n'est sur le point de commencer 😧
     </section>
 
     return <>
         {
-            matchs.value.map(match => 
+            matchs.map(match => 
                 <Affiche
                     key={match.id}
                     match={match}/>)

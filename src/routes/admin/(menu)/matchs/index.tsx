@@ -1,4 +1,4 @@
-import { $, component$, useSignal } from "@builder.io/qwik";
+import { $, component$, useSignal, useStore } from "@builder.io/qwik";
 import { Link, routeLoader$, server$ } from "@builder.io/qwik-city";
 import Dialog from "~/components/Dialog";
 import pg from "~/lib/pg";
@@ -31,64 +31,74 @@ type Action = { type: 'supprimer' } |
 export const actionMatch = server$(async (id: number, action: Action) => {
     const client = await pg();
 
-    switch(action.type) {
-        case 'allonger':
-            if(typeof action.temps !== 'number') {
-                break
-            }
-            await client.query(
-                `UPDATE matchs SET fermeture = fermeture + INTERVAL '${action.temps} minutes'
-                WHERE id = $1`,
+    if(action.type === "allonger") {
+        if(typeof action.temps !== 'number') {
+            client.release()
+            return false
+        }
+        await client.query(
+            `UPDATE matchs SET fermeture = fermeture + INTERVAL '${action.temps} minutes'
+            WHERE id = $1`,
+            [id]
+        )
+        client.release()
+        return true
+    }
+    if(action.type === "supprimer") {
+        try {
+            await client.query('BEGIN')
+            const paris = await client.query<{ pseudo: string, agl: number }>(
+                `DELETE FROM paris WHERE match = $1
+                RETURNING pseudo, agl`,
                 [id]
             )
-            break
-        case 'supprimer':
-            try {
-                await client.query('BEGIN')
-                const paris = await client.query<{ pseudo: string, agl: number }>(
-                    `DELETE FROM paris WHERE match = $1
-                    RETURNING pseudo, agl`,
-                    [id]
-                )
-
-                for(const { pseudo, agl } of paris.rows) {
-                    await client.query(
+    
+            for(const { pseudo, agl } of paris.rows) {
+                await Promise.all([
+                    client.query(
                         `UPDATE utilisateurs SET agl = agl + $2
                         WHERE pseudo = $1`,
                         [pseudo, agl]
-                    )
-                    await client.query(
+                    ),
+                    client.query(
                         `INSERT INTO transactions (pseudo, agl, raison)
                         VALUES ($1, $2, $3)`,
                         [pseudo, agl, `Annulation du pari (${id}).`]
                     )
-                }
-
-                await client.query(
-                    `DELETE FROM matchs
-                    WHERE id = $1`,
-                    [id]
-                )
-                await client.query('COMMIT')
-            } catch(e) {
-                await client.query('ROLLBACK')
-                client.release()
+                ])
             }
-            break
-        case 'fermer':
+            
             await client.query(
-                `UPDATE matchs SET fermeture = now()
+                `DELETE FROM matchs
                 WHERE id = $1`,
                 [id]
             )
-            break
+            await client.query('COMMIT')
+            return true
+        } catch(e) {
+            await client.query('ROLLBACK')
+            client.release()
+            return false
+        }
+    }
+    if(action.type === "fermer") {
+        await client.query(
+            `UPDATE matchs SET fermeture = now()
+            WHERE id = $1`,
+            [id]
+        )
+        client.release()
+
+        return true
     }
 
     client.release()
+    return false
 })
 
 export default component$(() => {
-    const matchs = useMatchs()
+    const signal = useMatchs()
+    const matchs = useStore(signal.value)
     const selection = useSignal<null | number>(null)
     return <>
         <Link href="/admin/matchs/new" 
@@ -98,7 +108,7 @@ export default component$(() => {
         </Link>
         <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-2">
             {
-                matchs.value.map(match => <div key={match.id} 
+                matchs.map(match => <div key={match.id} 
                     class="flex flex-col sm:grid p-3 rounded-md grid-cols-3 justify-between gap-2
                     sm:items-center bg-white/25">
                     <div class="flex flex-col gap-2 col-span-2">
@@ -149,10 +159,14 @@ export default component$(() => {
                         `Entrez 'oui' pour supprimer le match N°${selection.value}`
                     );
                     if(confirmation === 'oui' && selection.value) {
-                        await actionMatch(selection.value, {
+                        const reussite = await actionMatch(selection.value, {
                             type: "supprimer"
                         })
-                        selection.value = null
+                        if(reussite) {
+                            const i = matchs.findIndex(m => m.id === selection.value)
+                            matchs.splice(i, 1)
+                            selection.value = null
+                        }
                     }
                 }}>
                 Supprimer
@@ -166,11 +180,14 @@ export default component$(() => {
                     )
                     const min = parseInt(qt || '-1')
                     if(min > 0 && selection.value) {
-                        await actionMatch(selection.value, {
+                        const reussite = await actionMatch(selection.value, {
                             type: 'allonger',
                             temps: min
                         })
-                        selection.value = null
+                        if(reussite) {
+                            selection.value = null
+                            location.reload()
+                        }
                     }
                 }}>
                 Rallonger
@@ -179,15 +196,17 @@ export default component$(() => {
                 transition-colors hover:bg-pink/75
                 cursor-pointer select-none"
                 onClick$={async () => {
-                    const confirmation = prompt(
-                        `Entrez 'oui' pour fermer les paris du match`
-                    )
-                    if(confirmation === 'oui' && selection.value) {
-                        await actionMatch(selection.value, {
-                            type: 'fermer',
-                        })
-                        selection.value = null
-                    }
+                    if(!selection.value) return
+                    const reussite =  await actionMatch(selection.value, {
+                        type: 'fermer',
+                    })
+
+                    if(!reussite) return
+
+                    console.log(matchs, selection.value, matchs[selection.value])
+                    const i = matchs.findIndex(m => m.id === selection.value)
+                    matchs[i].fermeture = new Date(Date.now() - 1000 * 60)
+                    selection.value = null
                 }}>
                 Fermer
             </div>

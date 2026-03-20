@@ -1,5 +1,5 @@
 import { component$, useSignal } from "@builder.io/qwik";
-import { type DocumentHead, routeLoader$, server$ } from "@builder.io/qwik-city";
+import { type DocumentHead, routeLoader$, server$, useNavigate } from "@builder.io/qwik-city";
 import pg from "~/lib/pg";
 import Equipe from "~/routes/home/match/[id]/Equipe";
 
@@ -63,16 +63,18 @@ export const choisirGagnant = server$(async function(gagnant: string) {
         }
 
         await client.query('COMMIT')
-        // /live récuperer les paris **ouverts**
-        // /match récupérer les matchs **ouverts**
+        client.release()
+        return true
     } catch(e) {
         await client.query('ROLLBACK')
         console.error('[admin][db]',e)
+        client.release()
+        return false
     }
-    client.release()
 })
 
 export default component$(() => {
+    const nav = useNavigate()
     const match = useMatch()
     const gagnant = useSignal<string | null>(null)
     return <>
@@ -88,17 +90,18 @@ export default component$(() => {
         <div class="grid grid-cols-2 lg:grid-cols-3 gap-2 w-full">
             { 
                 match.value.equipes.map(equipe => <Equipe
-                key={equipe}
-                equipe={equipe}
-                image={null}
-                cote={0}
-                onClick$={() => {
-                    gagnant.value = equipe
-                }}
-                class={ gagnant.value === equipe
-                    ? 'bg-pink/25'
-                    : 'bg-white/10' }
-            />) }
+                    key={equipe}
+                    equipe={equipe}
+                    image={null}
+                    cote={0}
+                    onClick$={() => {
+                        gagnant.value = equipe
+                    }}
+                    class={ gagnant.value === equipe
+                        ? 'bg-pink/25'
+                        : 'bg-white/10' }
+                />) 
+            }
         </div>
 
         <button disabled={!gagnant.value}
@@ -107,12 +110,10 @@ export default component$(() => {
                 disabled:bg-white/25 disabled:cursor-not-allowed disabled:text-white/50
                 hover:bg-pink/75 bg-pink/50 cursor-pointer"
             onClick$={async () => {
-                const confirmation = prompt(
-                    `Entrez 'oui' pour choisir ${gagnant.value} en tant que gagnant du match.`
-                )
-                if(confirmation === 'oui' && gagnant.value) {
-                    await choisirGagnant(gagnant.value)
-                }
+                if(!gagnant.value) return
+                const reussite = await choisirGagnant(gagnant.value)
+
+                if(reussite) nav('/admin/matchs/')
             }}>
             Envoyer
         </button>

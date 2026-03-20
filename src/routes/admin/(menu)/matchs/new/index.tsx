@@ -1,6 +1,5 @@
 import { component$, useSignal, useStore } from "@builder.io/qwik";
 import Icon from "~/assets/icon.png?jsx"
-import parseDate from "./date"
 import { type DocumentHead, server$, useNavigate } from "@builder.io/qwik-city";
 
 interface Match {
@@ -68,65 +67,37 @@ export default component$(() => {
     return <section class="w-full md:w-fit flex flex-col gap-1 
         bg-white/10 p-4 rounded-md relative
         md:mx-auto md:min-w-2xl">
-        <h2 class={["font-sobi text-3xl outline-none",
-            match.titre.length === 0 && 'text-pink animate-pulse']} 
-            contentEditable="true"
-            onInput$={(_, t) => match.titre = t.innerText}>
-            Titre du match
-        </h2>
+        <input placeholder="Titre du match"
+            class="font-sobi text-3xl outline-none 
+            placeholder:animate-pulse placeholder:text-pink"
+            onInput$={(_, t) => match.titre = t.value}/>
         <div class="flex flex-col gap-2" >
-            <span contentEditable="true" 
-                onInput$={(_, t) => match.informations = t.innerText}
-                class={["outline-none",
-                match.informations.length === 0 && 'text-pink animate-pulse']}>
-                Une description suffisament explicite
-            </span>
-            <div class="w-full grid grid-cols-2 py-2 text-xl
+            <input type="text" onInput$={(_, t) => match.informations = t.value}
+                placeholder="Une description suffisament explicite"
+                class="outline-none placeholder:text-pink placeholder:animate-pulse"/>
+            <div class="w-full sm:grid grid-cols-2 py-2 text-xl flex flex-col
                 justify-items-center items-center text-center justify-center">
                 <div class="flex flex-col items-center gap-1">
                     <span class="text-sm text-center">
                         Ouverture
                     </span>
-                    <input type="text" 
-                        placeholder="JJ/MM HH:MM"
-                        onInput$={(_, t) => {
-                            const d = parseDate(t.value)
-                            if(typeof d === 'string') {
-                                erreurs.value = d
-                            } else {
-                                match.ouverture = d
-                                erreurs.value = ''
-                            }
-                        }}
-                        class={[
-                        !match.ouverture && 'animate-pulse text-pink',
-                        "font-avenir font-medium w-48 text-center outline-none"
-                    ]} />
+                    <input type="datetime-local" 
+                        class="font-avenir font-medium w-48 text-center outline-none
+                        placeholder:animate-pulse placeholder:text-pink"
+                        onInput$={(_, t) => match.ouverture = new Date(t.value)}/>
                 </div>
                 <div class="flex flex-col items-center gap-1">
                     <span class="text-sm text-center">
                         Fermeture
                     </span>
-                    <input type="text" 
-                        placeholder="JJ/MM HH:MM"
-                        onInput$={(_, t) => {
-                            const d = parseDate(t.value)
-                            if(typeof d === 'string') {
-                                erreurs.value = d
-                            } else {
-                                match.fermeture = d
-                                erreurs.value = ''
-                            }
-                        }}
-                        class={[
-                        !match.fermeture && 'animate-pulse text-pink',
-                        "font-avenir font-medium w-48 text-center outline-none"
-                    ]} />
+                    <input type="datetime-local" 
+                        class="font-avenir font-medium w-48 text-center outline-none"
+                        onInput$={(_, t) => match.fermeture = new Date(t.value)}/>
                 </div>
             </div>
         </div>
 
-        <div class="flex flex-row items-center py-4 overflow-x-auto gap-2">
+        <div class="flex flex-row flex-wrap items-center py-4 overflow-x-auto gap-2">
             {
                 match.equipes.map((equipe, i, a) => <div 
                     key={i}
@@ -135,12 +106,13 @@ export default component$(() => {
                         class="py-2 flex flex-col gap-1 
                             items-center justify-center">
                         <Icon class="h-12 w-12 rounded-md"/>
-                        <p class={["font-sobi text-center outline-none",
-                            equipe === '' && 'animate-pulse text-pink']}
-                            contentEditable="true"
+                        <input type="text"
+                            placeholder="Equipe"
+                            class="font-sobi text-center outline-none w-24 min-w-16
+                                placeholder:animate-pulse placeholder:text-pink"
                             onInput$={(_, t) => {
-                            match.equipes[i] = t.innerText
-                        }}>Equipe</p>
+                                match.equipes[i] = t.value
+                            }}/>
                     </div>
                     {
                         i + 1 !== a.length && <span class="font-sobi text-pink">
@@ -165,7 +137,6 @@ export default component$(() => {
             
         </div>
         <div class="flex flex-row items-center gap-2">
-
             <button class="px-2 py-1 sm:px-3 rounded-md flex flex-row items-center gap-2
                 transition-colors w-fit font-avenir
                 disabled:bg-white/25 disabled:cursor-not-allowed disabled:text-white/50
@@ -179,11 +150,8 @@ export default component$(() => {
                 onClick$={async (_, t) => {
                     if(!t.disabled) {
                         const response = await createMatch(match);
-                        if(response === 'ok') {
-                            await nav('/admin/matchs')
-                        } else {
-                            erreurs.value = response
-                        }
+                        if(response === 'ok') await nav('/admin/matchs')
+                        else erreurs.value = response
                     }
                 }}>
                 Créer le match

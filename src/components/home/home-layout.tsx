@@ -3,6 +3,7 @@ import { Link, type RouteLocation } from "@builder.io/qwik-city";
 
 import Live from "~/assets/icons/live.svg?jsx"
 import Leader from "~/assets/icons/leader.svg?jsx"
+import Admin from "~/assets/icons/admin.svg?jsx"
 const liens = [
     {
         path: '/home/match/',
@@ -32,17 +33,18 @@ const liens = [
 
 interface Props {
     location: RouteLocation,
-    agl: number
+    agl: number,
+    roles: string[]
 }
 
-export default ({ location, agl }: Props) => <section 
+export default ({ location, agl, roles }: Props) => <section 
     class="min-h-svh p-4 md:p-8 flex flex-col gap-2 lg:gap-4 xl:gap-5 overflow-hidden relative">
     <header class="flex flex-row items-center justify-between text-xl font-sobi z-10">
         <nav class="flex flex-row items-center gap-2">
             {
                 liens.map((lien, i) => <Link key={i} href={lien.path} prefetch={false}
                     class={[
-                    "p-2 sm:px-3 rounded-md flex flex-row items-center gap-2",
+                    "p-2 sm:px-3 rounded-md flex flex-row items-center gap-2 backdrop-blur-xs",
                     lien.path === location.url.pathname
                     ? "bg-pink text-white"
                     : "bg-white/25 hover:bg-white/50"
@@ -50,8 +52,18 @@ export default ({ location, agl }: Props) => <section
                     { lien.slot }
                 </Link>)
             }
+            {
+                roles.includes('admin') && <Link href="/admin/" prefetch={false}
+                    class="p-2 sm:px-3 rounded-md flex flex-row items-center gap-2 
+                    backdrop-blur-xs bg-white/25 hover:bg-white/50">
+                    <Admin/>
+                    <span class="hidden sm:block">
+                            Admin
+                    </span>
+                </Link>
+            }
         </nav>
-        <Link class="py-1.5 px-3 bg-white/25 hover:bg-white/50 rounded-md font-sobi whitespace-nowrap"
+        <Link class="py-1.5 px-3 bg-white/25 hover:bg-white/50 rounded-md font-sobi whitespace-nowrap backdrop-blur-xs"
             href="/home/bank" prefetch={false}>
             { agl } <span class="text-sm text-pink">agl</span>
         </Link>

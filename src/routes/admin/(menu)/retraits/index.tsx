@@ -1,4 +1,4 @@
-import { component$ } from "@builder.io/qwik";
+import { component$, useStore } from "@builder.io/qwik";
 import { routeLoader$, server$ } from "@builder.io/qwik-city";
 import Button from "~/components/admin/button";
 
@@ -36,18 +36,19 @@ const actionRetrait = server$(async (id: number) => {
 })
 
 export default component$(() => {
-    const retraits = useRetraits()
+    const signal = useRetraits()
+    const retraits = useStore(signal.value)
     return <>
         <h1 class="font-bold text-2xl my-4">
             Confirmation des retraits
         </h1>
         {
-            retraits.value.length === 0 && <p>
+            retraits.length === 0 && <p>
                 👀 Il n'y a pas de retraits en attente...
             </p>
         }
         {
-            retraits.value.map((retrait, i) => <div key={i}
+            retraits.map((retrait, i) => <div key={i}
                 class="grid grid-cols-3 gap-2 *:transition-colors items-center">
                 <p class="font-bold">
                     { retrait.pseudo }
@@ -63,7 +64,9 @@ export default component$(() => {
                 </p>
                 <Button onClick$={async () => {
                     const confirmation = prompt(`Entrez 'oui' pour confirmer`)
-                    if(confirmation === 'oui') await actionRetrait(retrait.id)
+                    if(confirmation !== 'oui') return
+                    await actionRetrait(retrait.id)
+                    retraits.splice(i, 1)
                 }}>
                     Effectué
                 </Button>

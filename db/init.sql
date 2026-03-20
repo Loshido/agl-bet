@@ -3,7 +3,7 @@ BEGIN;
 CREATE TABLE IF NOT EXISTS utilisateurs (
 	pseudo TEXT PRIMARY KEY,
 	pass TEXT NOT NULL,
-    roles ARRAY,
+    roles JSONB DEFAULT '[]',
 	createdat TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 	agl INTEGER NOT NULL DEFAULT 0 CHECK (agl >= 0)
 );
@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS matchs (
 	informations TEXT NOT NULL,
 	ouverture TIMESTAMPTZ NOT NULL,
 	fermeture TIMESTAMPTZ NOT NULL,
-	equipes TEXT NOT NULL,
+	equipes JSONB NOT NULL,
 	statut TEXT NOT NULL DEFAULT 'en attente',
 	participants INTEGER NOT NULL DEFAULT 0 CHECK (participants >= 0),
 	agl INTEGER NOT NULL DEFAULT 0 CHECK (agl >= 0),

@@ -10,7 +10,11 @@ export default component$(() => {
     const nav = useNavigate()
 
     useVisibleTask$(() => {
-        setTimeout(() => nav('/'), 100)
+        setTimeout(() => {
+            localStorage.removeItem('meta')
+            localStorage.removeItem('transactions')
+            nav('/')
+        }, 100)
     })
 
     return <div>

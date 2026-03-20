@@ -30,13 +30,13 @@ export default component$(() => {
         </Link>
         <Link class="text-4xl font-bold px-4 py-2 hover:bg-white/25 rounded-md
             cursor-pointer font-sobi transition-colors" prefetch={false}
-            href="/admin/credits">
-            Crédits
-        </Link>
-        <Link class="text-4xl font-bold px-4 py-2 hover:bg-white/25 rounded-md
-            cursor-pointer font-sobi transition-colors" prefetch={false}
             href="/admin/transactions">
             Transactions
+        </Link>
+        <Link class="text-2xl font-bold px-4 py-2 hover:bg-white/25 rounded-md
+            cursor-pointer font-sobi transition-colors" prefetch={false}
+            href="/home">
+            Application
         </Link>
     </section>
 })

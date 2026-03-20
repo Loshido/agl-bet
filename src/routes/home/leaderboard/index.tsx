@@ -1,6 +1,7 @@
-import { component$ } from "@builder.io/qwik";
+import { component$, useStore } from "@builder.io/qwik";
 import { routeLoader$ } from "@builder.io/qwik-city";
 import Podium from "~/components/classement/podium";
+import Fond from "~/assets/fond.svg?jsx"
 
 interface Utilisateur {
     pseudo: string,
@@ -16,36 +17,39 @@ export const useClassement = routeLoader$(async () => {
         `SELECT pseudo, agl
         FROM utilisateurs
         ORDER BY agl DESC`
-    )
-    
+    )    
     client.release()
     return response.rows
 })
 
 export default component$(() => {
-    const classement = useClassement()
+    const signal = useClassement()
+    const classement = useStore(signal.value)
     return <>
-        <div class="mx-auto my-4 md:my-8">
+        <div class="-z-10 *:absolute *:top-0 *:left-0 *:w-full *:h-full opacity-25">
+            <Fond/>
+        </div>
+        <div class="mx-auto my-4 md:mt-8">
             <Podium 
                 players={
-                    classement.value.length < 3
+                    classement.length < 3
                     ? [{ pseudo: 'x', agl: 0 },{ pseudo: 'x', agl: 0 },{ pseudo: 'x', agl: 0 }]
-                    : classement.value.slice(0, 3) as [Utilisateur, Utilisateur, Utilisateur]} />
+                    : classement.slice(0, 3) as [Utilisateur, Utilisateur, Utilisateur]} />
         </div>
         <div class="grid grid-cols-7 font-black 
             lg:px-48 xl:px-96">
             <p class="font-sobi text-sm text-center">
                 N°
             </p>
-            <p class="font-bold col-span-4">
+            <p class="font-sobi col-span-4">
                 Pseudo
             </p>
-            <p class="text-sm col-span-2">
+            <p class="font-sobi col-span-2">
                 Score
             </p>
         </div>
         {
-            classement.value
+            classement
                 .slice(3)
                 .map((joueur, i) => <div key={i}
                 class="grid grid-cols-7 lg:px-48 xl:px-96">
