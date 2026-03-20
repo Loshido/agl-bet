@@ -13,11 +13,9 @@ export const useClassement = routeLoader$(async () => {
     
     // On déduit le crédit pour que le classement soit + accurate
     const response = await client.query<Utilisateur>(
-        `SELECT utilisateurs.pseudo, agl + coalesce(-credits.du, 0) AS agl
+        `SELECT pseudo, agl
         FROM utilisateurs
-        LEFT JOIN credits ON utilisateurs.pseudo = credits.pseudo 
-        AND credits.status != 'rembourse'
-        ORDER BY (utilisateurs.agl + coalesce(-credits.du, 0)) DESC`
+        ORDER BY agl DESC`
     )
     
     client.release()

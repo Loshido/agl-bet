@@ -43,7 +43,6 @@ const queries = {
 
 import pg from "~/lib/pg";
 import { admin, tokens } from "~/routes/admin/auth";
-import redis from "~/lib/redis";
 const modifyAGL = server$(async function(pseudo: string, agl: number) {
     const token = this.cookie.get('admin');
     const administrateur = admin === token?.value
@@ -82,7 +81,6 @@ const modifyAGL = server$(async function(pseudo: string, agl: number) {
     }
     
     client.release()
-    await redis.hDel('payload', pseudo)
 })
 
 export const useProfile = routeLoader$(async ctx => {

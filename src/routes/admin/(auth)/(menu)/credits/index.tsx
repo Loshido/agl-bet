@@ -40,8 +40,6 @@ interface LigneCredit {
     status: string
 }
 
-import { credits as creditsCache } from "~/lib/cache";
-import redis from "~/lib/redis";
 const actionCredit = server$(async (id: number, action: 'refuser' | 'accepter') => {
     const client = await pg();
 
@@ -94,8 +92,6 @@ const actionCredit = server$(async (id: number, action: 'refuser' | 'accepter') 
             )
 
             await client.query('COMMIT')
-            await creditsCache.removeItem(credit.pseudo)
-            await redis.hDel('payload', credit.pseudo)
         } catch(e) {
             await client.query('ROLLBACK')
         }

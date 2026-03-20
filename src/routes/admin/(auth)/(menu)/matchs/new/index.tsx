@@ -12,7 +12,6 @@ interface Match {
 }
 
 import pg from "~/lib/pg";
-import redis from "~/lib/redis"
 export const createMatch = server$(async (match: Match): Promise<string> => {
     if(match.titre.length === 0) 
         return "Le titre n'est pas défini"
@@ -51,9 +50,6 @@ export const createMatch = server$(async (match: Match): Promise<string> => {
             "[admin][db] Erreur dans l'insertio d'un match.", 
             response
         )
-    } else {
-        const new_match = response.rows[0]
-        await redis.hSet('matchs', new_match.id, JSON.stringify(new_match))
     }
     return response.rowCount ? 'ok' : "Impossible d'insérer le match."
 })

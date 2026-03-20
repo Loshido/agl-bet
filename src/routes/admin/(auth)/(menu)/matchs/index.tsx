@@ -25,7 +25,6 @@ export const useMatchs = routeLoader$(async () => {
     return response.rows
 })
 
-import redis from "~/lib/redis"
 type Action = { type: 'supprimer' } | 
     { type: 'allonger', temps: number } |
     { type: 'fermer' }
@@ -63,7 +62,6 @@ export const actionMatch = server$(async (id: number, action: Action) => {
                         VALUES ($1, $2, $3)`,
                         [pseudo, agl, `Annulation du pari (${id}).`]
                     )
-                    await redis.hDel('payload', pseudo)
                 }
 
                 await client.query(
@@ -83,7 +81,6 @@ export const actionMatch = server$(async (id: number, action: Action) => {
                 WHERE id = $1`,
                 [id]
             )
-            await redis.hDel('matchs', id.toString())
             break
     }
 

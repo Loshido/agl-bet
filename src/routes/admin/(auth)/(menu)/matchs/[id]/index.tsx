@@ -25,7 +25,6 @@ export const useMatch = routeLoader$(async ctx => {
     return matchs.rows[0]
 })
 
-import redis from "~/lib/redis"
 export const choisirGagnant = server$(async function(gagnant: string) {
     const client = await pg()
     try {
@@ -61,7 +60,6 @@ export const choisirGagnant = server$(async function(gagnant: string) {
                 VALUES ($1, $2, $3)`,
                 [pseudo, Math.ceil(cote * agl), `Pari gagnant (${this.params.id})`]
             )
-            await redis.hDel('payload', pseudo)
         }
 
         await client.query('COMMIT')

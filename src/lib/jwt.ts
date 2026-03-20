@@ -2,15 +2,15 @@ import type { EnvGetter } from "@builder.io/qwik-city/middleware/request-handler
 import { type JWTPayload, jwtVerify, SignJWT, decodeJwt } from "jose";
 
 export interface Payload {
-    pseudo: string
+    pseudo: string,
+    roles: string[]
 }
 
 const ALG = 'HS256';
 const ISSUER = 'alg-bet-qwik';
 const AUDIENCE = 'alg-bet-users';
-const ADMINS = 'alg-bet-admins';
 
-export const verify = async (jwt: string, ctx: EnvGetter, options?: { admin?: boolean }): Promise<null | Payload> => {
+export const verify = async (jwt: string, ctx: EnvGetter): Promise<null | Payload> => {
     const secret = ctx.get('JWT_SECRET')
     if(!secret) {
         console.error("[jwt] JWT_SECRET introuvable")
@@ -21,7 +21,7 @@ export const verify = async (jwt: string, ctx: EnvGetter, options?: { admin?: bo
     try {
         const { payload } = await jwtVerify<Payload>(jwt, key, {
             issuer: ISSUER,
-            audience: options?.admin ? ADMINS : AUDIENCE
+            audience: AUDIENCE
         })
     
         return payload
@@ -30,7 +30,7 @@ export const verify = async (jwt: string, ctx: EnvGetter, options?: { admin?: bo
     }
 }
 
-export const sign = async (payload: Payload & JWTPayload, ctx: EnvGetter, options?: { admin?: boolean }): Promise<string | null> => {
+export const sign = async (payload: Payload & JWTPayload, ctx: EnvGetter): Promise<string | null> => {
     const secret = ctx.get('JWT_SECRET')
     if(!secret) {
         console.error("[jwt] JWT_SECRET introuvable")
@@ -43,7 +43,7 @@ export const sign = async (payload: Payload & JWTPayload, ctx: EnvGetter, option
         .setProtectedHeader({ alg: ALG })
         .setIssuedAt()
         .setIssuer(ISSUER)
-        .setAudience(options?.admin ? ADMINS : AUDIENCE)
+        .setAudience(AUDIENCE)
         .setExpirationTime('12h')
         .sign(key)
 
