@@ -43,7 +43,7 @@ export const getMeta = server$(async function() {
 })
 
 import cookie from "~/lib/cookie";
-import HomeLayout from "~/components/home-layout";
+import HomeLayout from "~/components/home/home-layout";
 import ClientStore from "~/lib/storage";
 
 export const MetaContext = createContextId<Meta>('meta')

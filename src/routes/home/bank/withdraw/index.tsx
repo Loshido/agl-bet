@@ -4,17 +4,13 @@ import { Link, routeAction$, z, zod$ } from "@builder.io/qwik-city";
 import pg from "~/lib/pg";
 export const useRetrait = routeAction$(async (data, ctx) => {
     const payload = ctx.sharedMap.get('payload') as Payload | undefined
-    if(!payload?.pseudo) {
-        return {
-            message: "L'utilisateur est introuvable",
-            status: false
-        }
+    if(!payload?.pseudo) return {
+        message: "L'utilisateur est introuvable",
+        status: false
     }
-    if(data.somme <= 0) {
-        return {
-            message: "On ne peut retirer une somme négative ou nulle. 🕵️",
-            status: false
-        }
+    if(data.somme <= 0) return {
+        message: "On ne peut retirer une somme négative ou nulle. 🕵️",
+        status: false
     }
 
     const client = await pg()
@@ -89,7 +85,7 @@ export default component$(() => {
             Retirer de l'argents
         </h1>
         <p class="px-4 sm:px-8">
-            Pour procéder, vous devez valider un retrait 
+            Pour procéder, vous devez enregistrer votre retrait 
             puis demander les <span class="text-pink font-sobi text-sm">agl </span>
             à un membre du staff.
         </p>

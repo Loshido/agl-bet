@@ -36,7 +36,7 @@ interface Props {
 }
 
 export default ({ location, agl }: Props) => <section 
-    class="min-h-svh p-4 lg:p-16 md:p-8 flex flex-col gap-2 lg:gap-4 xl:gap-5 overflow-hidden relative">
+    class="min-h-svh p-4 md:p-8 flex flex-col gap-2 lg:gap-4 xl:gap-5 overflow-hidden relative">
     <header class="flex flex-row items-center justify-between text-xl font-sobi z-10">
         <nav class="flex flex-row items-center gap-2">
             {
@@ -51,7 +51,7 @@ export default ({ location, agl }: Props) => <section
                 </Link>)
             }
         </nav>
-        <Link class="p-1.5 sm:p-2 bg-white/25 hover:bg-white/50 rounded-md font-sobi whitespace-nowrap"
+        <Link class="py-1.5 px-3 bg-white/25 hover:bg-white/50 rounded-md font-sobi whitespace-nowrap"
             href="/home/bank" prefetch={false}>
             { agl } <span class="text-sm text-pink">agl</span>
         </Link>

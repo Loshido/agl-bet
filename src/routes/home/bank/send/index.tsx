@@ -5,23 +5,17 @@ import pg from "~/lib/pg";
 export const useEnvoyer = routeAction$(async (data, ctx) => {
     const payload = ctx.sharedMap.get('payload') as Payload | undefined
 
-    if(!payload || data.pseudo.length === 0) {
-        return {
-            message: "Les pseudos ont un problème",
-            status: false
-        }
+    if(!payload || data.pseudo.length === 0) return {
+        message: "Les pseudos ont un problème",
+        status: false
     }
-    if(payload.pseudo === data.pseudo) {
-        return {
-            message: "Tu ne peux te virer de l'argents à toi-même.",
-            status: false
-        }
+    if(payload.pseudo === data.pseudo) return {
+        message: "Tu ne peux te virer de l'argents à toi-même.",
+        status: false
     }
-    if(data.somme <= 0) {
-        return {
-            message: "On ne peut retirer une somme négative ou nulle. 🕵️",
-            status: false
-        }
+    if(data.somme <= 0) return {
+        message: "On ne peut retirer une somme négative ou nulle. 🕵️",
+        status: false
     }
 
     const origine = payload.pseudo;
@@ -49,7 +43,7 @@ export const useEnvoyer = routeAction$(async (data, ctx) => {
             `UPDATE utilisateurs SET agl = agl - $1
             WHERE pseudo = $2 AND agl >= $1`,
             [somme, origine]
-        );
+        )
         if(!compte.rowCount) throw new Error(
             "L'origine du virement n'a pas les fonds.");
 
