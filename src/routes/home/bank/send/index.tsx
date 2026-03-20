@@ -1,10 +1,9 @@
-import { component$, useStore } from "@builder.io/qwik";
+import { component$, useContext, useStore } from "@builder.io/qwik";
 import { Link, routeAction$, z, zod$ } from "@builder.io/qwik-city";
 
 import pg from "~/lib/pg";
-import type { SharedPayload } from "~/routes/home/layout";
 export const useEnvoyer = routeAction$(async (data, ctx) => {
-    const payload = ctx.sharedMap.get('payload') as SharedPayload | undefined
+    const payload = ctx.sharedMap.get('payload') as Payload | undefined
 
     if(!payload || data.pseudo.length === 0) {
         return {
@@ -84,9 +83,10 @@ export const useEnvoyer = routeAction$(async (data, ctx) => {
 }))
 
 import Back from "~/assets/icons/back.svg?jsx"
-import { usePayload } from "../../layout";
+import { Payload } from "~/lib/jwt";
+import { MetaContext } from "../../layout";
 export default component$(() => {    
-    const payload = usePayload()
+    const payload = useContext(MetaContext)
     const envoie = useEnvoyer()
     const data = useStore({
         pseudo: '',
@@ -103,7 +103,7 @@ export default component$(() => {
                 <Back/>
             </Link>
             <h2 class="font-sobi text-white text-4xl">
-                { payload.value.agl } <span class="text-sm text-pink">agl</span>
+                { payload.agl } <span class="text-sm text-pink">agl</span>
             </h2>
         </header>
         <h1 class="px-4 sm:px-8 text-2xl font-bold">
@@ -126,7 +126,7 @@ export default component$(() => {
                     data.message = "Saisissez un montant!"
                     return
                 }
-                if(data.montant > payload.value.agl) {
+                if(data.montant > payload.agl) {
                     data.message = "Vous devez avoir assez d'argent!"
                     return
                 }
@@ -137,7 +137,7 @@ export default component$(() => {
                 if(response.value.message) {
                     data.message = response.value.message
                     if(response.value.status) {
-                        payload.value.agl -= data.montant
+                        payload.agl -= data.montant
                     }
                 }
             }}/>

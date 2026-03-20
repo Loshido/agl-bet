@@ -1,11 +1,10 @@
-import { component$ } from "@builder.io/qwik";
+import { component$, useContext } from "@builder.io/qwik";
 
 import { routeAction$, zod$, z, Link, server$ } from "@builder.io/qwik-city";
 
 import pg from "~/lib/pg";
-import type { SharedPayload } from "~/routes/home/layout";
 export const useCredit = routeAction$(async (data, ctx) => {
-    const payload = ctx.sharedMap.get('payload') as SharedPayload | undefined
+    const payload = ctx.sharedMap.get('payload') as Payload | undefined
     if(!payload) return {
         message: "L'utilisateur est introuvable",
         status: false
@@ -99,7 +98,7 @@ export const loadCreditData = server$(async function(){
 })
 
 export const useRemboursement = routeAction$(async (_, ctx) => {
-    const payload = ctx.sharedMap.get('payload') as SharedPayload | undefined
+    const payload = ctx.sharedMap.get('payload') as Payload | undefined
     if(!payload) return {
         message: "L'utilisateur est introuvable",
         status: false
@@ -124,7 +123,6 @@ export const useRemboursement = routeAction$(async (_, ctx) => {
             WHERE pseudo = $1 AND agl >= $2`,
             [payload.pseudo, credit.rows[0].du]
         )
-        payload.agl -= credit.rows[0].du
 
         if(!argents.rowCount) throw {
             message: "Vous n'avez pas assez d'argents",
@@ -158,10 +156,6 @@ export const useRemboursement = routeAction$(async (_, ctx) => {
         throw e
     }
     client.release()
-    ctx.sharedMap.set('payload', {
-        ...payload,
-        credit: undefined
-    } as SharedPayload)
 
     return {
         message: "Votre crédit est remboursé.",
@@ -169,15 +163,15 @@ export const useRemboursement = routeAction$(async (_, ctx) => {
     }
 })
 
-import { usePayload } from "~/routes/home/layout";
 
 import Back from "~/assets/icons/back.svg?jsx"
 import Attente from "./attente";
 import Demande from "./demande";
 import Remboursement from "./remboursement";
-import { decode } from "~/lib/jwt";
+import { decode, Payload } from "~/lib/jwt";
+import { MetaContext } from "../../layout";
 export default component$(() => {  
-    const payload = usePayload();
+    const payload = useContext(MetaContext);
 
     return <section class="flex flex-col gap-4 p-2 lg:px-80">
         <header class="w-full flex flex-row items-center justify-center p-4 relative">
@@ -188,20 +182,20 @@ export default component$(() => {
                 <Back/>
             </Link>
             <h2 class="font-sobi text-white text-4xl">
-                { payload.value.agl } <span class="text-sm text-pink">agl</span>
+                { payload.agl } <span class="text-sm text-pink">agl</span>
             </h2>
         </header>
-        {
+        {/* {
             payload.value.credit === 'en attente' && 
                 <Attente/>
-        }
-        {
+        } */}
+        {/* {
             payload.value.credit === undefined && 
                 <Demande payload={payload}/>
-        }
-        {
+        } */}
+        {/* {
             payload.value.credit === 'remboursement' && 
                 <Remboursement/>
-        }
+        } */}
     </section>
 })

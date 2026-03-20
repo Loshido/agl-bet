@@ -1,4 +1,4 @@
-import { component$, useComputed$, useSignal, useStore } from "@builder.io/qwik";
+import { component$, useComputed$, useContext, useSignal, useStore } from "@builder.io/qwik";
 import { Link, routeLoader$, server$, useNavigate } from "@builder.io/qwik-city";
 
 import type { Match } from "..";
@@ -108,10 +108,10 @@ export const parier = server$(async function(pari: number, equipe: string) {
 
 import Equipe from "./Equipe";
 import { decode } from "~/lib/jwt";
-import { usePayload } from "~/routes/home/layout";
+import { MetaContext } from "../../layout";
 export default component$(() => {
     const match = useMatch();
-    const payload = usePayload()
+    const payload = useContext(MetaContext)
     const input = useSignal<HTMLInputElement>()
     const nav = useNavigate()
     const pari = useStore<{ 
@@ -244,7 +244,7 @@ export default component$(() => {
                 bg-pink rounded-md text-center disabled:bg-pink/50
                 disabled:text-white/50"
                 disabled={ !pari.equipe  || pari.agl === 0 
-                    || pari.agl > payload.value.agl }
+                    || pari.agl > payload.agl }
                 onClick$={async (_, t) => {
                     if(t.disabled || !pari.equipe) return;
                     const succes = await parier(pari.agl, pari.equipe);

@@ -83,7 +83,7 @@ const onSubmit = (message: Signal<string>, nav: RouteNavigate) => {
         const [code, reponse] = await submit(pseudo.value, pass.value)
         switch(code) {
             case 200:
-                await nav('/home/match?delete-cache')
+                await nav('/home/')
                 return
             case 401:
                 await nav('/inactif')

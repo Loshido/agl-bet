@@ -1,7 +1,6 @@
 import { component$ } from "@builder.io/qwik";
 import { routeLoader$, server$, useNavigate } from "@builder.io/qwik-city";
 import pg from "~/lib/pg";
-import { usePayload } from "../layout";
 import { decode } from "~/lib/jwt";
 
 interface Pari {
@@ -15,7 +14,10 @@ interface Pari {
 }
 
 export const useLive = routeLoader$(async ctx => {
-    const payload = await ctx.resolveValue(usePayload)
+    const token = ctx.cookie.get('token')?.value
+    const payload = token ? decode(token) : null
+    if(!payload) return []
+
     const client = await pg();
 
     const response = await client.query<Pari>(
@@ -36,8 +38,7 @@ export const useLive = routeLoader$(async ctx => {
 
 export const retirer = server$(async function(id: number, match: number) {
     const token = this.cookie.get('token')
-    if(!token) return false
-    const payload = decode(token.value)
+    const payload = token ? decode(token.value) : null
     if(!payload) return false
 
     const pseudo = payload.pseudo

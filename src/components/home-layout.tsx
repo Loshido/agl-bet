@@ -40,7 +40,7 @@ export default ({ location, agl }: Props) => <section
     <header class="flex flex-row items-center justify-between text-xl font-sobi z-10">
         <nav class="flex flex-row items-center gap-2">
             {
-                liens.map((lien, i) => <Link key={i} href={lien.path}
+                liens.map((lien, i) => <Link key={i} href={lien.path} prefetch={false}
                     class={[
                     "p-2 sm:px-3 rounded-md flex flex-row items-center gap-2",
                     lien.path === location.url.pathname
@@ -52,7 +52,7 @@ export default ({ location, agl }: Props) => <section
             }
         </nav>
         <Link class="p-1.5 sm:p-2 bg-white/25 hover:bg-white/50 rounded-md font-sobi whitespace-nowrap"
-            href="/home/bank">
+            href="/home/bank" prefetch={false}>
             { agl } <span class="text-sm text-pink">agl</span>
         </Link>
     </header>

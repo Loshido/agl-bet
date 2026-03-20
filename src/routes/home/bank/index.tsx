@@ -1,6 +1,5 @@
-import { component$ } from "@builder.io/qwik";
+import { component$, useContext } from "@builder.io/qwik";
 import { Link } from "@builder.io/qwik-city";
-import { usePayload } from "../layout";
 
 import Back from "~/assets/icons/back.svg?jsx"
 import Bank from "~/assets/icons/loan.svg?jsx"
@@ -8,9 +7,9 @@ import Send from "~/assets/icons/send.svg?jsx"
 import History from "~/assets/icons/history.svg?jsx"
 import Withdraw from "~/assets/icons/withdraw.svg?jsx"
 import Logout from "~/assets/icons/logout.svg?jsx"
+import { MetaContext } from "../layout";
 export default component$(() => {    
-    const payload = usePayload()
-
+    const meta = useContext(MetaContext)
     return <section class="flex flex-col gap-4 p-2 lg:px-80">
         <header class="w-full flex flex-row items-center justify-center p-4 relative">
             <Link class="p-2 rounded-md flex flex-row items-center gap-2 
@@ -20,7 +19,7 @@ export default component$(() => {
                 <Back/>
             </Link>
             <h2 class="font-sobi text-white text-4xl">
-                { payload.value.agl } <span class="text-sm text-pink">agl</span>
+                { meta.agl } <span class="text-sm text-pink">agl</span>
             </h2>
         </header>
         <nav class="w-full h-full flex flex-col justify-between select-none">
@@ -29,16 +28,7 @@ export default component$(() => {
                     hover:text-pink text-white group
                     transition-colors duration-500
                     flex flex-row items-center gap-2"
-                    href="/home/bank/loan">
-                    <Bank class="w-10 h-10 *:duration-500 *:transition-colors
-                        *:stroke-white group-hover:*:stroke-pink"/>
-                    Faire un prêt
-                </Link>
-                <Link class="font-sobi text-3xl p-4 hover:bg-white/10 rounded-md
-                    hover:text-pink text-white group
-                    transition-colors duration-500
-                    flex flex-row items-center gap-2"
-                    href="/home/bank/send">
+                    href="/home/bank/send" prefetch={false}>
                     <Send class="w-10 h-10 *:stroke-3 *:duration-500 *:transition-colors
                         *:stroke-white group-hover:*:stroke-pink"/>
                     Envoyer de l'argent
@@ -47,7 +37,7 @@ export default component$(() => {
                     hover:text-pink text-white group
                     transition-colors duration-500
                     flex flex-row items-center gap-2"
-                    href="/home/bank/withdraw">
+                    href="/home/bank/withdraw" prefetch={false}>
                     <Withdraw class="w-10 h-10 *:stroke-3 *:duration-500 *:transition-colors
                         *:stroke-white group-hover:*:stroke-pink"/>
                     Retirer de l'argent
@@ -56,7 +46,7 @@ export default component$(() => {
                     hover:text-pink text-white group
                     transition-colors duration-500
                     flex flex-row items-center gap-2"
-                    href="/home/bank/history">
+                    href="/home/bank/history" prefetch={false}>
                     <History class="w-10 h-10 *:stroke-3 *:duration-500 *:transition-colors
                         *:stroke-white group-hover:*:stroke-pink"/>
                     Historique
@@ -68,7 +58,7 @@ export default component$(() => {
                     transition-colors duration-500
                     flex flex-row items-center gap-2"
                     prefetch={false}
-                    href="/home/logout">
+                    href="/deconnexion">
                     <Logout class="w-10 h-10 *:stroke-3 *:duration-500 *:transition-colors
                         *:stroke-white group-hover:*:stroke-pink"/>
                     Déconnexion

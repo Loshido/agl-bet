@@ -1,12 +1,9 @@
 import { component$, useSignal, useComputed$, type Signal } from "@builder.io/qwik";
 
-import type { SharedPayload } from "~/routes/home/layout";
 import { useCredit } from ".";
+import { Payload } from "~/lib/jwt";
 
-type Props = {
-    payload: Signal<SharedPayload>
-}
-export default component$(({ payload }: Props) => {
+export default component$(() => {
     const credit = useCredit()  
     const apport = useSignal(0);
     const interets = useComputed$(() => {
@@ -28,11 +25,11 @@ export default component$(({ payload }: Props) => {
             L'apport vous sera reversé si le prêt est refusé.
         </p>
 
-        <input type="number" 
+        {/* <input type="number" 
             class="mx-4 px-4 sm:px-8 py-4 bg-white/25 rounded-md
             font-sobi text-xl outline-none" max={payload.value.agl} min={100}
             onInput$={(_, t) => apport.value = parseInt(t.value)}
-            placeholder={`Apport (${payload.value.agl} max)`} />
+            placeholder={`Apport (${payload.value.agl} max)`} /> */}
 
         <div class="py-2 border rounded-md mx-4 px-4 text-xl">
             <h3 class="text-2xl font-avenir font-medium">
@@ -62,7 +59,7 @@ export default component$(({ payload }: Props) => {
             </p>
         </div>
                 
-        <input type="submit" value="Prendre le prêt" 
+        {/* <input type="submit" value="Prendre le prêt" 
             class="mx-4 px-4 sm:px-8 py-4 bg-pink rounded-md hover:bg-pink/75
             font-sobi text-xl cursor-pointer"
             onClick$={async () => {
@@ -72,7 +69,7 @@ export default component$(({ payload }: Props) => {
                 if(response.value.status) {
                     payload.value.credit = 'en attente'
                 }
-            }}/>
+            }}/> */}
 
         <p class="mx-4">
             {

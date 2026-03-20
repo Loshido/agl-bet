@@ -1,9 +1,9 @@
-import { component$, useSignal } from "@builder.io/qwik";
+import { component$, useContext, useSignal } from "@builder.io/qwik";
 import { Link, routeAction$, z, zod$ } from "@builder.io/qwik-city";
 
 import pg from "~/lib/pg";
 export const useRetrait = routeAction$(async (data, ctx) => {
-    const payload = ctx.sharedMap.get('payload') as SharedPayload | undefined
+    const payload = ctx.sharedMap.get('payload') as Payload | undefined
     if(!payload?.pseudo) {
         return {
             message: "L'utilisateur est introuvable",
@@ -64,9 +64,10 @@ export const useRetrait = routeAction$(async (data, ctx) => {
 }))
 
 import Back from "~/assets/icons/back.svg?jsx"
-import { type SharedPayload, usePayload } from "~/routes/home/layout";
+import { MetaContext } from "../../layout";
+import { Payload } from "~/lib/jwt";
 export default component$(() => {    
-    const payload = usePayload()
+    const payload = useContext(MetaContext)
     const latest = useSignal(0)
     const somme = useSignal<number>()
     const message = useSignal('')
@@ -81,7 +82,7 @@ export default component$(() => {
                 <Back/>
             </Link>
             <h2 class="font-sobi text-white text-4xl">
-                { payload.value.agl } <span class="text-sm text-pink">agl</span>
+                { payload.agl } <span class="text-sm text-pink">agl</span>
             </h2>
         </header>
         <h1 class="px-4 sm:px-8 text-2xl font-bold">
@@ -103,7 +104,7 @@ export default component$(() => {
                     message.value = 'La somme doit être positive... 🧑‍🎓'
                     return
                 }
-                if(somme.value > payload.value.agl) {
+                if(somme.value > payload.agl) {
                     message.value = 'Vous devez avoir cette somme... 🕵️'
                     return
                 }
@@ -120,7 +121,7 @@ export default component$(() => {
                 if(data.value.message) {
                     message.value = data.value.message
                     if(data.value.status === true) {
-                        payload.value.agl -= somme.value
+                        payload.agl -= somme.value
                     }
                 }
             }} />
