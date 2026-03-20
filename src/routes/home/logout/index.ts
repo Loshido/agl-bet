@@ -6,10 +6,6 @@ export const onGet: RequestHandler = async ctx => {
         path: '/',
         domain: cookie.domain
     })
-    ctx.cookie.delete('transactions', {
-        path: '/home/bank/history',
-        domain: cookie.domain
-    })
 
     throw ctx.redirect(302, '/')
 }

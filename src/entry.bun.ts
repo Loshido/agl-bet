@@ -1,4 +1,3 @@
-
 import { createQwikCity } from "@builder.io/qwik-city/middleware/bun";
 import qwikCityPlan from "@qwik-city-plan";
 import { manifest } from "@qwik-client-manifest";
@@ -18,16 +17,12 @@ const server = Bun.serve({
     reusePort: true,
     async fetch(request: Request) {
         const staticResponse = await staticFile(request);
-        if (staticResponse) {
-            return staticResponse;
-        }
+        if (staticResponse) return staticResponse;
 
         const qwikCityResponse = await router(request);
-        if (qwikCityResponse) {
-            return qwikCityResponse;
-        }
+        if (qwikCityResponse) return qwikCityResponse;
 
-        return notFound(request);
+        return notFound(request)
     },
     port,
 });

@@ -1,18 +1,15 @@
 import argon from "@node-rs/argon2";
 
-const secret = process.env.HASH_SECRET
-if(!secret) throw new Error('HASH_SECRET introuvable')
 
-const key = new TextEncoder().encode(secret)
-
-export const hash = async (pass: string): Promise<string> => {
-    return await argon.hash(pass, {
-        secret: key
-    })
+function getSecret() {
+    const secret = process.env.HASH_SECRET
+    if(!secret) throw new Error('HASH_SECRET introuvable')
+    
+    return new TextEncoder().encode(secret)
 }
 
-export const compare = async (pass: string, hash: string): Promise<boolean> => {
-    return await argon.verify(hash, pass, {
-        secret: key
-    })
-}
+export const hash = (pass: string): Promise<string> => 
+    argon.hash(pass, { secret: getSecret() })
+
+export const compare = (pass: string, hash: string): Promise<boolean> => 
+    argon.verify(hash, pass, { secret: getSecret() })

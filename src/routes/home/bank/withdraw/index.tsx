@@ -48,7 +48,6 @@ export const useRetrait = routeAction$(async (data, ctx) => {
         )
         
         await client.query('COMMIT')
-        await redis.hDel('payload', payload.pseudo)
     } catch(e) {
         await client.query('ROLLBACK')
         throw e
@@ -66,7 +65,6 @@ export const useRetrait = routeAction$(async (data, ctx) => {
 
 import Back from "~/assets/icons/back.svg?jsx"
 import { type SharedPayload, usePayload } from "~/routes/home/layout";
-import redis from "~/lib/redis";
 export default component$(() => {    
     const payload = usePayload()
     const latest = useSignal(0)

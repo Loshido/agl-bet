@@ -1,9 +1,9 @@
 {
-  "$schema": "https://json.schemastore.org/web-manifest-combined.json",
-  "name": "agl-bet",
-  "short_name": "All Game Long Bet",
-  "start_url": ".",
-  "display": "standalone",
-  "background_color": "#080E1A",
-  "description": "Une plateforme de paris fictif pour un évènement."
+    "$schema": "https://json.schemastore.org/web-manifest-combined.json",
+    "name": "agl-bet",
+    "short_name": "All Game Long Bet",
+    "start_url": ".",
+    "display": "standalone",
+    "background_color": "#080E1A",
+    "description": "Une plateforme de paris fictif pour un évènement."
 }

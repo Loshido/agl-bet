@@ -34,7 +34,6 @@ export const useLive = routeLoader$(async ctx => {
     return response.rows
 })
 
-import redis from "~/lib/redis";
 export const retirer = server$(async function(id: number, match: number) {
     const token = this.cookie.get('token')
     if(!token) return false
@@ -82,15 +81,12 @@ export const retirer = server$(async function(id: number, match: number) {
         )
         
         await client.query('COMMIT')
-        const new_match = matchs.rows[0]
-        await redis.hSet('matchs', new_match.id, JSON.stringify(new_match))
     } catch {
         await client.query('ROLLBACK')
         client.release()
         return false
     }
     client.release()
-    await redis.hDel('payload', pseudo)
     return true
 })
 

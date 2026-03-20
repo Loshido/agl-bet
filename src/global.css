@@ -18,6 +18,7 @@
     font-family: "Avenir";
     src: url(/fonts/Avenir-light.otf);
 }
+
 @theme {
     --color-pink: #FC43A1;
     --color-midnight: #080E1A;

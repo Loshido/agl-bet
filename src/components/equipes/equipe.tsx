@@ -6,7 +6,7 @@ type Props = {
     image: string | null
 } & PropsOf<'div'>
 
-export default component$(({ image, nom, ...props }: Props) => {
+export default ({ image, nom, ...props }: Props) => {
     return <div {...props} 
         class={["flex flex-col gap-1 items-center justify-center", props.class]}>
         {
@@ -20,4 +20,4 @@ export default component$(({ image, nom, ...props }: Props) => {
             { nom }
         </p>
     </div>
-})
+}

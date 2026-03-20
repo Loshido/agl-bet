@@ -66,8 +66,6 @@ export const useEnvoyer = routeAction$(async (data, ctx) => {
         )
         
         await client.query('COMMIT')
-        await redis.hDel('payload', origine)
-        await redis.hDel('payload', destinataire)
     } catch(e) {
         await client.query('ROLLBACK')
         client.release()
@@ -87,7 +85,6 @@ export const useEnvoyer = routeAction$(async (data, ctx) => {
 
 import Back from "~/assets/icons/back.svg?jsx"
 import { usePayload } from "../../layout";
-import redis from "~/lib/redis";
 export default component$(() => {    
     const payload = usePayload()
     const envoie = useEnvoyer()

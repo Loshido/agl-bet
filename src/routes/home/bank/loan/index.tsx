@@ -22,15 +22,6 @@ export const useCredit = routeAction$(async (data, ctx) => {
                 WHERE pseudo = $1 AND status != 'rembourse'`,
                 [payload.pseudo]);
             if(prets.rowCount) {
-                const rd = redis
-                const data = await rd.hGet('payload', payload.pseudo)
-                if(data) {
-                    const user = JSON.parse(data)
-                    await rd.hSet('payload', payload.pseudo, JSON.stringify({
-                        ...user,
-                        credit: 'en attente'
-                    }))
-                }
                 throw {
                     message: "Vous avez déjà un prêt en attente.",
                     status: false
@@ -67,7 +58,6 @@ export const useCredit = routeAction$(async (data, ctx) => {
             throw e
         }
         client.release()
-        await redis.hDel('payload', payload.pseudo)
         return {
             message: "Votre prêt est en attente",
             status: true
@@ -76,7 +66,6 @@ export const useCredit = routeAction$(async (data, ctx) => {
     apport: z.number().min(100).max(200000)
 }))
 
-import { credits as creditsCache } from "~/lib/cache";
 export const loadCreditData = server$(async function(){
     const empty = {
         interets: 0,
@@ -89,10 +78,6 @@ export const loadCreditData = server$(async function(){
     const payload = decode(token.value)
     if(!payload) return empty
 
-    const cache = await creditsCache.getItem(payload.pseudo)
-    if(cache) {
-        return cache
-    }
     const client = await pg();
 
     const credits = await client.query<{
@@ -108,10 +93,7 @@ export const loadCreditData = server$(async function(){
 
     client.release()
 
-    if(credits.rowCount === 1) {
-        await creditsCache.setItem(payload.pseudo, credits.rows[0])
-        return credits.rows[0]
-    }
+    if(credits.rowCount === 1) return credits.rows[0]
     console.error(`[db][credit] le crédit de ${payload.pseudo} n'est pas conforme ou inexistant.`)
     return empty
 })
@@ -162,7 +144,6 @@ export const useRemboursement = routeAction$(async (_, ctx) => {
         )
 
         await client.query('COMMIT')
-        await creditsCache.removeItem(payload.pseudo)
     } catch(e) {
         await client.query('ROLLBACK')
         client.release()
@@ -182,16 +163,6 @@ export const useRemboursement = routeAction$(async (_, ctx) => {
         credit: undefined
     } as SharedPayload)
 
-    const rd = redis
-    const data = await rd.hGet('payload', payload.pseudo)
-    if(data) {
-        const user = JSON.parse(data)
-        await rd.hSet('payload', payload.pseudo, JSON.stringify({
-            ...user,
-            credit: undefined,
-            agl: payload.agl
-        }))
-    }
     return {
         message: "Votre crédit est remboursé.",
         status: true
@@ -205,7 +176,6 @@ import Attente from "./attente";
 import Demande from "./demande";
 import Remboursement from "./remboursement";
 import { decode } from "~/lib/jwt";
-import redis from "~/lib/redis";
 export default component$(() => {  
     const payload = usePayload();
 

@@ -8,63 +8,36 @@ interface Pari {
 }
 
 import pg from "~/lib/pg";
-import redis from "~/lib/redis";
-import cache from "~/lib/cache";
 export const useMatch = routeLoader$(async ctx => {
-    const match = await cache<Match | null>(async () => {
-        const rd = redis
-        const data = await rd.hGet('matchs', ctx.params.id);
+    const client = await pg();
 
-        if(data) {
-            try {
-                const match = JSON.parse(data)
-                const parsed = {
-                    ...match,
-                    ouverture: new Date(match.ouverture),
-                    fermeture: new Date(match.fermeture)
-                } as Match
-                return ['ok', parsed]
-            } catch(e) {
-                console.error('[redis] parsing Match failed')
-            }
-        }
-        return ['no', async match => {
-            if(!match) return
-            
-            await rd.hSet('matchs', ctx.params.id, JSON.stringify(match))
-        }]
-    }, async () => {
-        const client = await pg();
-    
-        const response = await client.query<Match>(
-            `SELECT * FROM matchs
-            WHERE id = $1 AND ouverture < now() AND fermeture > now()`,
-            [ctx.params.id]
-        )
+    const response = await client.query<Match>(
+        `SELECT * FROM matchs
+        WHERE id = $1 AND ouverture < now() AND fermeture > now()`,
+        [ctx.params.id]
+    )
+
+    if(!response.rowCount) {
         client.release()
-        if(!response.rowCount) return null
+        return null
+    }
 
-        return response.rows[0]
-    })
-    if(!match) return null
+    const match = response.rows[0]
 
-    const client = await pg()
     const paris = await client.query<Pari>(
         `SELECT agl, equipe FROM paris
         WHERE match = $1`,
         [ctx.params.id]
     )
+    client.release()
 
     const equipes: { [equipe: string]: number } = {}
     
     match.equipes.forEach(equipe => equipes[equipe] = 0)
     paris.rows.forEach(row => {
-        if(row.equipe in equipes) {
+        if(row.equipe in equipes)
             equipes[row.equipe] += row.agl
-        }
     })
-
-    client.release()
 
     return {
         ...match,
@@ -124,10 +97,6 @@ export const parier = server$(async function(pari: number, equipe: string) {
         
         await client.query('COMMIT')
         client.release()
-        await redis.hDel('payload', pseudo)
-
-        const new_match = matchs.rows[0]
-        await redis.hSet('matchs', new_match.id, JSON.stringify(new_match))
     } catch(e) {
         console.error(`[match][^${pseudo}]`,e)
         await client.query('ROLLBACK')

@@ -1,4 +1,3 @@
-import { component$ } from "@builder.io/qwik";
 import Equipe from "./equipe";
 import { Link } from "@builder.io/qwik-city";
 import Users from "~/assets/icons/users.svg?jsx"
@@ -15,7 +14,7 @@ interface Match {
 }
 
 type Props = { match: Match }
-export default component$(({ match }: Props) => {
+export default ({ match }: Props) => {
     return <div class="w-full flex flex-col gap-1 bg-white/10 p-4 rounded-md relative">
         <h2 class="font-sobi text-2xl">
             { match.titre }
@@ -66,4 +65,4 @@ export default component$(({ match }: Props) => {
             Parier
         </Link>
     </div>
-})
+}
