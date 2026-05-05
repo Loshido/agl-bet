@@ -19,11 +19,13 @@ export const verify = async (jwt: string, ctx: EnvGetter): Promise<null | Payloa
     const key = new TextEncoder().encode(secret)
 
     try {
-        const { payload } = await jwtVerify<Payload>(jwt, key, {
+        const { payload, protectedHeader } = await jwtVerify<Payload>(jwt, key, {
             issuer: ISSUER,
             audience: AUDIENCE
         })
-    
+
+        if(protectedHeader.alg !== 'HS256') return null
+
         return payload
     } catch {
         return null

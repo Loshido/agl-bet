@@ -46,6 +46,7 @@ const submit = server$(async function(pseudo: string, pass: string): Promise<[nu
             expires: new Date(Date.now() + 1000 * 60 * 30),
             domain: cookie.domain,
             secure: cookie.secure,
+            path: cookie.path
         });
 
         return insertion.rowCount 
@@ -66,6 +67,7 @@ const submit = server$(async function(pseudo: string, pass: string): Promise<[nu
         expires: new Date(Date.now() + duration),
         domain: cookie.domain,
         secure: cookie.secure,
+        path: cookie.path
     });
 
     return roles.includes('user') ? [200, 'ok'] : [401, 'Compte en attente']

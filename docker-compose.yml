@@ -3,11 +3,13 @@ services:
     # postgres://postgres:password@db:5432/postgres
     env_file:
       - .env
+    environment:
+      - PGDATA=/var/lib/postgresql/data/pgdata
     image: postgres:18-alpine
     container_name: agl-db
     volumes:
-     - ./db/:/docker-entrypoint-initdb.d/
-      - agl-db:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d
+      - ./db/data:/var/lib/postgresql/data
     restart: always
   web:
     env_file:
@@ -17,7 +19,3 @@ services:
     image: ghcr.io/loshido/agl-bet
     container_name: agl-bet
     restart: always
-
-volumes:
-  agl-db:
-    name: agl-vol

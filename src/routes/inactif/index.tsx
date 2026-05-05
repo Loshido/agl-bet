@@ -33,6 +33,7 @@ export const checkStatus = server$(async function() {
         expires: new Date(Date.now() + 1000 * 60 * 60 * 12),
         domain: cookie.domain,
         secure: cookie.secure,
+        path: cookie.path
     });
 
     return 200

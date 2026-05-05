@@ -1,5 +1,3 @@
-BEGIN;
-
 CREATE TABLE IF NOT EXISTS utilisateurs (
 	pseudo TEXT PRIMARY KEY,
 	pass TEXT NOT NULL,
@@ -63,5 +61,3 @@ CREATE INDEX IF NOT EXISTS idx_transactions_pseudo_at
 
 CREATE INDEX IF NOT EXISTS idx_retraits_pseudo_at
 	ON retraits (pseudo, at DESC);
-
-COMMIT;
