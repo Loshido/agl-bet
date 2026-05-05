@@ -26,6 +26,8 @@ POSTGRES=postgres://postgres:?1?@localhost:5432/postgres
 POSTGRES_PASSWORD=?1?
 HASH_SECRET=?2?
 JWT_SECRET=?3?
+
+DEFAULT_AGL=10000
 ```
 Vous pouvez générer des secrets aléatoires avec cette commande `openssl rand -base64 32`
 

@@ -32,10 +32,17 @@ const submit = server$(async function(pseudo: string, pass: string): Promise<[nu
     
     if(!response.rowCount) {
         // l'utilisateur n'existe pas
+        let agl = 10000
+        {
+            const default_agl_str = this.env.get('DEFAULT_AGL')
+            const default_agl = default_agl_str ? parseInt(default_agl_str) : -1
+
+            if(default_agl >= 0) agl = default_agl
+        }
         const computed_pass = await hash(pass);
         const insertion = await client.query(
-            `INSERT INTO utilisateurs (pseudo, pass, roles) VALUES ($1, $2, '[]');`,
-            [pseudo, computed_pass]
+            `INSERT INTO utilisateurs (pseudo, pass, roles, agl) VALUES ($1, $2, '[]', $3);`,
+            [pseudo, computed_pass, agl]
         );
         client.release()
 
