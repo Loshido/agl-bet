@@ -5,6 +5,7 @@ import { compare, hash } from "~/lib/argon";
 import cookie from "~/lib/cookie";
 import { sign, verify } from "~/lib/jwt";
 import pg from "~/lib/pg";
+import kv from "~/lib/kv"
 
 export const onGet: RequestHandler = async ctx => {
     const token = ctx.cookie.get('token')
@@ -20,6 +21,7 @@ export const onGet: RequestHandler = async ctx => {
 
 type Response = { pseudo: string, pass: string, roles: string[] }
 const submit = server$(async function(pseudo: string, pass: string): Promise<[number, string]> {
+    pseudo = pseudo.toLowerCase() // practicité
     if(pass.length < 4) return [400, "Mots de passe trop court!"]
     if(pseudo.length < 4) return [400, "Pseudo trop court!"]
     
@@ -31,6 +33,11 @@ const submit = server$(async function(pseudo: string, pass: string): Promise<[nu
     );
     
     if(!response.rowCount) {
+        if(kv.get('inscriptions') !== '1') {
+            client.release()
+            return [501, 'Les inscriptions ne sont plus ouvertes.']
+        }
+
         // l'utilisateur n'existe pas
         let agl = 10000
         {

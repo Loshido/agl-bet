@@ -1,7 +1,8 @@
-import { component$, useStore } from "@builder.io/qwik";
+import { component$, useStore, useVisibleTask$ } from "@builder.io/qwik";
 import { routeLoader$ } from "@builder.io/qwik-city";
 import Podium from "~/components/classement/podium";
 import Fond from "~/assets/fond.svg?jsx"
+import confetti from "./confetti"
 
 interface Utilisateur {
     pseudo: string,
@@ -9,24 +10,34 @@ interface Utilisateur {
 }
 
 import pg from "~/lib/pg";
+import kv from "~/lib/kv"
+
 export const useClassement = routeLoader$(async () => {
     const client = await pg()
+    const ballons = kv.get('ballons') === '1'
     
-    // On déduit le crédit pour que le classement soit + accurate
     const response = await client.query<Utilisateur>(
         `SELECT pseudo, agl
         FROM utilisateurs
+        WHERE roles ? 'user'
         ORDER BY agl DESC`
     )    
     client.release()
-    return response.rows
+    return [response.rows, ballons] as [Utilisateur[], boolean]
 })
 
 export default component$(() => {
     const signal = useClassement()
-    const classement = useStore(signal.value)
+    const classement = useStore(signal.value[0])
+
+    useVisibleTask$(() => {
+        if(!signal.value[1]) return
+        confetti()
+    })
+
     return <>
-        <div class="-z-10 *:absolute *:top-0 *:left-0 *:w-full *:h-full opacity-25">
+        <div class="-z-10 *:absolute *:top-0 *:left-0 *:w-full *:h-full">
+            <canvas id="confetti" class="z-10"/>
             <Fond/>
         </div>
         <div class="mx-auto my-4 md:mt-8">
