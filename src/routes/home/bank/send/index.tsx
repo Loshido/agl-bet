@@ -3,6 +3,7 @@ import { Link, routeAction$, z, zod$ } from "@builder.io/qwik-city";
 
 import pg from "~/lib/pg";
 export const useEnvoyer = routeAction$(async (data, ctx) => {
+    data.pseudo = data.pseudo.toLowerCase() // practicité
     const payload = ctx.sharedMap.get('payload') as Payload | undefined
 
     if(!payload || data.pseudo.length === 0) return {

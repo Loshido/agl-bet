@@ -46,7 +46,7 @@ export const createMatch = server$(async (match: Match): Promise<string> => {
 
     if(!response.rowCount) {
         console.error(
-            "[admin][db] Erreur dans l'insertio d'un match.", 
+            "[admin][db] Erreur dans l'insertion d'un match.", 
             response
         )
     }

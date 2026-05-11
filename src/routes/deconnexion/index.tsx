@@ -17,7 +17,5 @@ export default component$(() => {
         }, 100)
     })
 
-    return <div>
-        dacc
-    </div>
+    return <div></div>
 })

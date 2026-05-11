@@ -1,6 +1,7 @@
 import { component$, useSignal } from "@builder.io/qwik";
 import { type DocumentHead, Link, routeLoader$, server$, useLocation } from "@builder.io/qwik-city";
 import Button from "~/components/admin/button";
+import { verify } from "~/lib/jwt";
 
 interface Utilisateur {
     pseudo: string,
@@ -29,44 +30,60 @@ const queries = {
 }
 
 import pg from "~/lib/pg";
-const modifyAGL = server$(async function(pseudo: string, agl: number) {
-    // const token = this.cookie.get('admin');
-    // const administrateur = admin === token?.value
-    //     ? { name: 'root' }
-    //     : tokens.get(token?.value || '')
-    // if(!administrateur) {
-    //     return
-    // }
 
-    // const client = await pg();
-
-    // await client.query('BEGIN')
-    // try {
-    //     const agls = await client.query<{ agl: number }>(
-    //         `SELECT agl FROM utilisateurs WHERE pseudo = $1`,
-    //         [pseudo]
-    //     )
-    //     if(!agls.rowCount) throw new Error("n'existe pas")
-
-    //     await client.query(
-    //         `INSERT INTO transactions (pseudo, agl, raison)
-    //         VALUES ($1, $2, $3)`,
-    //         [pseudo, agl - agls.rows[0].agl, "Action staff"]
-    //     )
-    //     await client.query(`
-    //         UPDATE utilisateurs SET agl = $2
-    //         WHERE pseudo = $1`,
-    //         [pseudo, agl]
-    //     );
-    //     console.log(`[admin] ${ pseudo } a désormais ${agl} agl`
-    //         + ` (${ administrateur.name })`)
-        
-    //     await client.query('COMMIT')
-    // } catch(e) {
-    //     await client.query('ROLLBACK')
-    // }
+const add_agl = server$(async function(pseudo: string, agl: number) {
+    const token = this.cookie.get('token')?.value
+    const payload = token ? await verify(token, this.env) : null
+    if(!payload) return false
+    const client = await pg();
     
-    // client.release()
+    try {
+        await client.query('BEGIN;')
+        const data = await client.query(
+            `SELECT 1 FROM utilisateurs 
+            WHERE pseudo = $1 AND (roles ? 'root' OR roles ? 'admin');`, 
+            [payload?.pseudo]
+        )
+        if(data.rowCount === 0) throw 'Not allowed'
+        await client.query(
+            `UPDATE utilisateurs SET agl = agl + $2 
+            WHERE pseudo = $1;`, [pseudo, agl]);
+
+        await client.query('COMMIT;')
+        client.release()
+        return true
+    } catch(e) {
+        await client.query('ROLLBACK;')
+        client.release()
+        return false
+    }
+})
+const set_agl = server$(async function(pseudo: string, agl: number) {
+    const token = this.cookie.get('token')?.value
+    const payload = token ? await verify(token, this.env) : null
+    if(!payload) return false
+    const client = await pg();
+    
+    try {
+        await client.query('BEGIN;')
+        const data = await client.query(
+            `SELECT 1 FROM utilisateurs 
+            WHERE pseudo = $1 AND (roles ? 'root' OR roles ? 'admin');`, 
+            [payload?.pseudo]
+        )
+        if(data.rowCount === 0) throw 'Not allowed'
+        await client.query(
+            `UPDATE utilisateurs SET agl = $2 
+            WHERE pseudo = $1;`, [pseudo, agl]);
+
+        await client.query('COMMIT;')
+        client.release()
+        return true
+    } catch(e) {
+        await client.query('ROLLBACK;')
+        client.release()
+        return false
+    }
 })
 
 export const useProfile = routeLoader$(async ctx => {
@@ -90,7 +107,6 @@ export const useProfile = routeLoader$(async ctx => {
 export default component$(() => {
     const loc = useLocation()
     const profile = useProfile()
-    const entree = useSignal('')
 
     return <div>
         <h1 class="font-bold text-2xl my-4">
@@ -104,22 +120,33 @@ export default component$(() => {
             : <>
                 <div class="p-2 grid grid-cols-3 gap-2 items-center">
                     <p class="col-span-2 font-sobi text-2xl">
-                        <span contentEditable="true" class="outline-none"
-                            onInput$={(_, t) => entree.value = t.innerText}>
+                        <span>
                             {profile.value.agl}
                         </span>
                         <span class="text-xs text-pink mx-2">
                             agl
                         </span>
                     </p>
-                    <Button onClick$={async () => {
-                        const agl = parseInt(entree.value)
-                        if(agl >= 0) {
-                            await modifyAGL(profile.value.pseudo, agl)
-                        }
-                    }}>
-                        Modifier
-                    </Button>
+                    <div class="flex flex-row gap-2">
+                        <Button onClick$={async () => {
+                            const agl = parseInt(prompt("Somme à ajouter") || '')
+                            if(agl < 0 || agl > 0) {
+                                const success = await add_agl(profile.value.pseudo, agl)
+                                if(success) profile.value.agl += agl
+                            }
+                        }}>
+                            Ajouter
+                        </Button>
+                        <Button onClick$={async () => {
+                            const agl = parseInt(prompt("Nouvelle somme") || '')
+                            if(agl >= 0) {
+                                const success = await set_agl(profile.value.pseudo, agl)
+                                if(success) profile.value.agl = agl
+                            }
+                        }}>
+                            Modifier
+                        </Button>
+                    </div>
                 </div>
                 <hr class="my-4 border-white/25 rounded-md"/>
 

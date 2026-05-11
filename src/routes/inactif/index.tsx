@@ -43,7 +43,6 @@ export default component$(() => {
     const nav = useNavigate()
     useVisibleTask$(async () => {
         const status = await checkStatus()
-
         switch(status) {
             case 200:
                 nav('/home')

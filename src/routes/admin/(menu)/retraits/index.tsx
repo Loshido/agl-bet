@@ -63,8 +63,6 @@ export default component$(() => {
                     </span>
                 </p>
                 <Button onClick$={async () => {
-                    const confirmation = prompt(`Entrez 'oui' pour confirmer`)
-                    if(confirmation !== 'oui') return
                     await actionRetrait(retrait.id)
                     retraits.splice(i, 1)
                 }}>
