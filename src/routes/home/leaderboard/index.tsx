@@ -47,8 +47,7 @@ export default component$(() => {
                     ? [{ pseudo: 'x', agl: 0 },{ pseudo: 'x', agl: 0 },{ pseudo: 'x', agl: 0 }]
                     : classement.slice(0, 3) as [Utilisateur, Utilisateur, Utilisateur]} />
         </div>
-        <div class="grid grid-cols-7 font-black 
-            lg:px-48 xl:px-96">
+        <div class="grid grid-cols-7 font-black lg:px-48 xl:px-96 gap-y-3">
             <p class="font-sobi text-sm text-center">
                 N°
             </p>
@@ -58,23 +57,22 @@ export default component$(() => {
             <p class="font-sobi col-span-2">
                 Score
             </p>
+            {
+                classement
+                    .slice(3)
+                    .map((joueur, i) => <>
+                    <p class="font-light text-pink text-sm text-center">
+                        { i + 4 }
+                    </p>
+                    <p class="font-bold col-span-4">
+                        { joueur.pseudo }
+                    </p>
+                    <p class="text-sm font-sobi col-span-2">
+                        { joueur.agl } <span 
+                            class="text-pink text-xs">agl</span>
+                    </p>
+                </>)
+            }
         </div>
-        {
-            classement
-                .slice(3)
-                .map((joueur, i) => <div key={i}
-                class="grid grid-cols-7 lg:px-48 xl:px-96">
-                <p class="font-light text-pink text-sm text-center">
-                    { i + 4 }
-                </p>
-                <p class="font-bold col-span-4">
-                    { joueur.pseudo }
-                </p>
-                <p class="text-sm font-sobi col-span-2">
-                    { joueur.agl } <span 
-                        class="text-pink text-xs">agl</span>
-                </p>
-            </div>)
-        }
     </>
 })

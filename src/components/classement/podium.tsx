@@ -9,7 +9,7 @@ interface Podium {
     players: [Player, Player, Player]
 }
 
-import Podium from "~/assets/classement/podium_root.svg?jsx"
+import Podium from "~/assets/classement/podium_sharp.svg?jsx"
 import CrownPart from "~/assets/classement/crown_part.svg?jsx"
 import Spotlight from "~/assets/classement/spotlight.svg?jsx"
 export default component$(({ players }: Podium) => <div class="grid grid-cols-3 grid-rows-8 relative isolate

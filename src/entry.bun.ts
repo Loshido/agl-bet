@@ -12,8 +12,15 @@ const { router, notFound, staticFile } = createQwikCity({
 
 console.log(`[runtime] server started at http://localhost:${port}/`);
 
+process.addListener('SIGTERM', () => server.stop())
+process.addListener('SIGKILL', () => server.stop())
+process.addListener('SIGABRT', () => server.stop())
+process.addListener('SIGQUIT', () => server.stop())
+process.addListener('exit', () => server.stop())
+
 const server = Bun.serve({
     reusePort: true,
+    hostname: '0.0.0.0',
     async fetch(request: Request) {
         const staticResponse = await staticFile(request);
         if (staticResponse) return staticResponse;
@@ -25,9 +32,3 @@ const server = Bun.serve({
     },
     port,
 });
-
-process.addListener('SIGTERM', async () => await server.stop())
-process.addListener('SIGKILL', async () => await server.stop())
-process.addListener('SIGABRT', async () => await server.stop())
-process.addListener('SIGQUIT', async () => await server.stop())
-process.addListener('exit', async () => await server.stop())

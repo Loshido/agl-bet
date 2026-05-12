@@ -19,7 +19,9 @@ export default ({ onSubmit, message }: Props) => <section
             class="p-4 rounded-lg text-xl leading-0
             bg-midnight/25 placeholder:text-white/75 backdrop-blur-sm"/>
         <input type="password" placeholder="Mots de passe" 
-            name="pass" min={4} required={true}
+            name="pass" min={4} required={true} onKeyDown$={e => {
+                if(e.key === "Enter") onSubmit()
+            }}
             class="p-4 rounded-lg text-xl leading-0
             bg-midnight/25 placeholder:text-white/75 backdrop-blur-sm" />
         <input type="submit" value="Connexion / Inscription"

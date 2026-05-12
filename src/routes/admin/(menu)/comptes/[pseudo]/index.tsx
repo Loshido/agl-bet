@@ -118,7 +118,7 @@ export default component$(() => {
                 Profile introuvable ⚠️
             </>
             : <>
-                <div class="p-2 grid grid-cols-3 gap-2 items-center">
+                <div class="p-2 flex flex-row gap-2 items-center justify-between">
                     <p class="col-span-2 font-sobi text-2xl">
                         <span>
                             {profile.value.agl}

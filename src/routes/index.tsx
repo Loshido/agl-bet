@@ -21,7 +21,7 @@ export const onGet: RequestHandler = async ctx => {
 
 type Response = { pseudo: string, pass: string, roles: string[] }
 const submit = server$(async function(pseudo: string, pass: string): Promise<[number, string]> {
-    pseudo = pseudo.toLowerCase() // practicité
+    pseudo = pseudo.toLowerCase().trim() // practicité
     if(pass.length < 4) return [400, "Mots de passe trop court!"]
     if(pseudo.length < 4) return [400, "Pseudo trop court!"]
     
@@ -58,9 +58,7 @@ const submit = server$(async function(pseudo: string, pass: string): Promise<[nu
 
         this.cookie.set('token', jwt, {
             expires: new Date(Date.now() + 1000 * 60 * 30),
-            domain: cookie.domain,
-            secure: cookie.secure,
-            path: cookie.path
+            ...cookie
         });
 
         return insertion.rowCount 
@@ -79,9 +77,7 @@ const submit = server$(async function(pseudo: string, pass: string): Promise<[nu
     const duration = roles.includes('user') ? 1000 * 60 * 60 * 12 : 1000 * 60 * 30
     this.cookie.set('token', jwt, {
         expires: new Date(Date.now() + duration),
-        domain: cookie.domain,
-        secure: cookie.secure,
-        path: cookie.path
+        ...cookie
     });
 
     return roles.includes('user') ? [200, 'ok'] : [401, 'Compte en attente']
