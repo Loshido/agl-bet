@@ -2,6 +2,8 @@ import { component$, useStore, useVisibleTask$ } from "@builder.io/qwik";
 import { routeLoader$ } from "@builder.io/qwik-city";
 import Podium from "~/components/classement/podium";
 import Fond from "~/assets/fond.svg?jsx"
+import CA_PCA from "~/assets/ca-pca.png?jsx"
+import IE from "~/assets/ie.png?jsx"
 import confetti from "./confetti"
 
 interface Utilisateur {
@@ -47,7 +49,7 @@ export default component$(() => {
                     ? [{ pseudo: 'x', agl: 0 },{ pseudo: 'x', agl: 0 },{ pseudo: 'x', agl: 0 }]
                     : classement.slice(0, 3) as [Utilisateur, Utilisateur, Utilisateur]} />
         </div>
-        <div class="grid grid-cols-7 font-black lg:px-48 xl:px-96 gap-y-3">
+        <div class="grid grid-cols-7 font-black lg:px-48 xl:px-96 gap-y-3 pb-32">
             <p class="font-sobi text-sm text-center">
                 N°
             </p>
@@ -73,6 +75,15 @@ export default component$(() => {
                     </p>
                 </>)
             }
+        </div>
+        <div class="bottom-8 left-0 md:left-8 flex flex-row gap-2
+            justify-center md:justify-start w-screen md:w-fit absolute md:fixed">
+            <div class="w-24 h-24 p-4">
+                <CA_PCA/>
+            </div>
+            <div class="w-24 h-24 p-2">
+                <IE/>
+            </div>
         </div>
     </>
 })
