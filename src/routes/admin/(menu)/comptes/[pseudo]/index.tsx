@@ -1,11 +1,12 @@
-import { component$, useSignal } from "@builder.io/qwik";
+import { component$, useSignal, useStore } from "@builder.io/qwik";
 import { type DocumentHead, Link, routeLoader$, server$, useLocation } from "@builder.io/qwik-city";
 import Button from "~/components/admin/button";
 import { verify } from "~/lib/jwt";
 
 interface Utilisateur {
     pseudo: string,
-    agl: number
+    agl: number,
+    roles: ('user' | 'admin' | 'root')[]
 }
 
 interface Retrait {
@@ -20,7 +21,7 @@ interface Profile extends Utilisateur {
 
 const queries = {
     utilisateurs: `
-        SELECT pseudo, agl FROM utilisateurs WHERE pseudo = $1
+        SELECT pseudo, agl, roles FROM utilisateurs WHERE pseudo = $1
     `,
     retraits: `
         SELECT effectif, agl, at FROM retraits
@@ -86,6 +87,34 @@ const set_agl = server$(async function(pseudo: string, agl: number) {
     }
 })
 
+const set_admin = server$(async function(pseudo: string) {
+    const token = this.cookie.get('token')?.value
+    const payload = token ? await verify(token, this.env) : null
+    if(!payload) return false
+    const client = await pg();
+    
+    try {
+        await client.query('BEGIN;')
+        const data = await client.query(
+            `SELECT 1 FROM utilisateurs 
+            WHERE pseudo = $1 AND roles ? 'root';`, 
+            [payload.pseudo]
+        )
+        if(data.rowCount === 0) throw 'Not allowed'
+        await client.query(
+            `UPDATE utilisateurs SET roles = roles || '"admin"' 
+            WHERE pseudo = $1 AND NOT roles ? 'admin';`, [pseudo]);
+
+        await client.query('COMMIT;')
+        client.release()
+        return true
+    } catch(e) {
+        await client.query('ROLLBACK;')
+        client.release()
+        return false
+    }
+}) 
+
 export const useProfile = routeLoader$(async ctx => {
     const pseudo = ctx.params.pseudo
     const client = await pg()
@@ -109,9 +138,23 @@ export default component$(() => {
     const profile = useProfile()
 
     return <div>
-        <h1 class="font-bold text-2xl my-4">
-            Profile de { loc.params.pseudo }
-        </h1>
+        <div class="font-bold text-2xl my-4 flex-row flex gap-2">
+            { loc.params.pseudo }
+            {
+                profile.value?.roles.includes("admin") && 
+                <div class="px-1.5 py-0.5 rounded-full text-xs bg-yellow text-midnight font-avenir font-medium
+                    h-fit leading-3 pt-1">
+                    administrateur
+                </div>
+            }
+            {
+                profile.value?.roles.includes("root") && 
+                <div class="px-1.5 py-0.5 rounded-full text-xs bg-pink text-midnight font-avenir font-medium
+                    h-fit leading-3 pt-1">
+                    root
+                </div>
+            }
+        </div>
         {
             profile.value === null 
             ? <>
@@ -186,13 +229,28 @@ export default component$(() => {
                 </div>
 
                 <hr class="my-4 border-white/25 rounded-md"/>
-                <Link 
-                    href={`/admin/transactions/${profile.value.pseudo}`}
-                    class="font-black text-xl my-2
-                    py-1.5 px-2 text-center hover:bg-white/50
-                    bg-white/25 cursor-pointer select-none rounded-sm">
-                    Transactions
-                </Link>
+                <div class="flex flex-row gap-2">
+                    <Link 
+                        href={`/admin/transactions/${profile.value.pseudo}`}
+                        class="font-black text-sm my-2
+                        py-1.5 px-2 text-center hover:bg-white/50
+                        bg-white/25 cursor-pointer select-none rounded-sm">
+                        Transactions
+                    </Link>
+                    {
+                        !profile.value.roles.includes('admin') 
+                        && <div  onClick$={async () => {
+                            const success = await set_admin(profile.value.pseudo)
+                            if(success) location.reload()
+                            else alert("vous devez être 'root'.")
+                        }}
+                            class="font-black text-sm my-2
+                            py-1.5 px-2 text-center hover:bg-white/50
+                            bg-white/25 cursor-pointer select-none rounded-sm">
+                            Passer administrateur
+                        </div>
+                    }
+                </div>
             </>
         }
     </div>

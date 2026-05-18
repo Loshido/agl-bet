@@ -4,7 +4,7 @@ import Podium from "~/components/classement/podium";
 import Fond from "~/assets/fond.svg?jsx"
 import CA_PCA from "~/assets/ca-pca.png?jsx"
 import IE from "~/assets/ie.png?jsx"
-import confetti from "./confetti"
+import confetti from "~/components/classement/confetti"
 
 interface Utilisateur {
     pseudo: string,

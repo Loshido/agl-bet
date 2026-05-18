@@ -11,7 +11,7 @@ export default component$(() => {
     const loc = useLocation()
     return <>
         <div class="p-1.5 rounded-md flex flex-row items-center gap-2
-            transition-colors bg-white/25 w-full md:w-fit font-avenir">
+            transition-colors bg-white/25 w-full md:w-fit font-avenir select-none">
             <Link href="/admin/comptes/" prefetch={false}
                 class={["px-2 py-1 sm:px-3 rounded-md flex flex-row items-center gap-2",
                 "transition-colors hover:bg-white/25 font-avenir w-full md:w-fit",
