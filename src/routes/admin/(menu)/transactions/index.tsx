@@ -10,7 +10,7 @@ export const useTransactions = routeLoader$(async () => {
     const client = await pg()
 
     const response = await client.query<Transaction>(
-        `SELECT pseudo FROM utilisateurs WHERE roles ? 'user'`
+        `SELECT pseudo FROM utilisateurs WHERE roles ? 'user' ORDER BY pseudo ASC`
     )
 
     client.release()
