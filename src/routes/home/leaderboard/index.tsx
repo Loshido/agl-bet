@@ -21,7 +21,7 @@ export const useClassement = routeLoader$(async () => {
     const response = await client.query<Utilisateur>(
         `SELECT pseudo, agl
         FROM utilisateurs
-        WHERE roles ? 'user'
+        WHERE roles ? 'user' AND NOT roles ? 'admin' AND NOT roles ? 'root'
         ORDER BY agl DESC`
     )    
     client.release()
@@ -38,7 +38,7 @@ export default component$(() => {
     })
 
     return <>
-        <div class="-z-10 *:absolute *:top-0 *:left-0 *:w-full *:h-full">
+        <div class="-z-10 *:fixed *:top-0 *:left-0 *:w-full *:h-full">
             <canvas id="confetti" class="z-10"/>
             <Fond/>
         </div>
@@ -49,7 +49,7 @@ export default component$(() => {
                     ? [{ pseudo: 'x', agl: 0 },{ pseudo: 'x', agl: 0 },{ pseudo: 'x', agl: 0 }]
                     : classement.slice(0, 3) as [Utilisateur, Utilisateur, Utilisateur]} />
         </div>
-        <div class="grid grid-cols-7 font-black lg:px-48 xl:px-96 gap-y-3 pb-32">
+        <div class="grid grid-cols-7 font-black lg:px-48 xl:px-96 gap-y-0 pb-32">
             <p class="font-sobi text-sm text-center">
                 N°
             </p>
