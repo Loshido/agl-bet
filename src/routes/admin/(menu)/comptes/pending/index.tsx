@@ -15,7 +15,6 @@ export const useUtilisateurEnAttente = routeLoader$(async () => {
         `SELECT pseudo, createdat FROM utilisateurs WHERE jsonb_array_length(roles) = 0`
     )
 
-    client.release()
     return utilisateurs.rows
 })
 
@@ -27,8 +26,6 @@ export const actionUtilisateur = server$(async (pseudo: string, action: 'accepte
         : `DELETE FROM utilisateurs WHERE pseudo = $1`,
         [pseudo]
     )
-
-    client.release()
 })
 
 export default component$(() => {
@@ -48,19 +45,19 @@ export default component$(() => {
                             })
                         }
                     </span>
-                </p>     
+                </p>
                 <Button onClick$={async () => {
                     await actionUtilisateur(utilisateur.pseudo, 'accepter');
                     utilisateurs.splice(i, 1)
                 } }>
                     Accepter
-                </Button>           
+                </Button>
                 <Button onClick$={async () => {
                     await actionUtilisateur(utilisateur.pseudo, 'refuser')
                     utilisateurs.splice(i, 1)
                 }}>
                     Refuser
-                </Button>           
+                </Button>
            </div>)
         }
     </>

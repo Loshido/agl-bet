@@ -15,20 +15,19 @@ export const checkStatus = server$(async function() {
 
     const client = await pg();
     const response = await client.query<Response>(
-        `SELECT pseudo, roles FROM utilisateurs WHERE pseudo = $1`, 
+        `SELECT pseudo, roles FROM utilisateurs WHERE pseudo = $1`,
         [payload.pseudo]
     );
-    client.release()
-        
+
     if(!response.rowCount) {
         this.cookie.delete('token', cookie)
         return 404
     }
     if(!response.rows[0].roles.includes('user')) return 400
-    
+
     const jwt = await sign({ ...payload }, this.env)
     if(!jwt) return 500
-    
+
     this.cookie.set('token', jwt, {
         expires: new Date(Date.now() + 1000 * 60 * 60 * 12),
         domain: cookie.domain,
@@ -46,16 +45,15 @@ export const onPost: RequestHandler = async ({ env, ...ev }) => {
     if(!payload) {
         ev.cookie.delete('token', cookie)
         ev.text(404, "Not connected")
-        return 
+        return
     }
 
     const client = await pg();
     const response = await client.query<Response>(
-        `SELECT pseudo, roles FROM utilisateurs WHERE pseudo = $1`, 
+        `SELECT pseudo, roles FROM utilisateurs WHERE pseudo = $1`,
         [payload.pseudo]
     );
-    client.release()
-        
+
     if(!response.rowCount) {
         ev.cookie.delete('token', cookie)
         ev.text(404, "Unauthentificated")
@@ -65,13 +63,13 @@ export const onPost: RequestHandler = async ({ env, ...ev }) => {
         ev.text(400, "Not accepted")
         return
     }
-    
+
     const jwt = await sign({ ...payload }, env)
     if(!jwt) {
         ev.text(500, "JWT couldn't be signed")
         return
     }
-    
+
     ev.cookie.set('token', jwt, {
         expires: new Date(Date.now() + 1000 * 60 * 60 * 12),
         domain: cookie.domain,
@@ -92,7 +90,7 @@ export default component$(() => {
         })
 
         status.value = response.status
-        if(status.value !== 200 && status.value !== 404) 
+        if(status.value !== 200 && status.value !== 404)
             setInterval(location.reload, 5000)
     })
 
@@ -105,8 +103,8 @@ export default component$(() => {
                 <p>
                     Essaye de te faire répérer par les organisateurs
                 </p>
-                <Link prefetch={false} class="text-pink hover:text-pink/75 
-                    font-medium transition-colors" 
+                <Link prefetch={false} class="text-pink hover:text-pink/75
+                    font-medium transition-colors"
                     href="/deconnexion">Déconnexion</Link>
             </>
         }
@@ -115,8 +113,8 @@ export default component$(() => {
                 <h2 class="font-sobi text-2xl relative max-w-4/5 text-center">
                     Ton profil est validé 🥳
                 </h2>
-                <Link prefetch={false} class="text-pink hover:text-pink/75 
-                    font-medium transition-colors" 
+                <Link prefetch={false} class="text-pink hover:text-pink/75
+                    font-medium transition-colors"
                     href="/home">
                     Accès à la plateforme
                 </Link>
@@ -127,8 +125,8 @@ export default component$(() => {
                 <h2 class="font-sobi text-2xl relative max-w-4/5 text-center">
                     Votre compte n'existe pas
                 </h2>
-                <Link prefetch={false} class="text-pink hover:text-pink/75 
-                    font-medium transition-colors" 
+                <Link prefetch={false} class="text-pink hover:text-pink/75
+                    font-medium transition-colors"
                     href="/">
                     Connexion / Inscription
                 </Link>

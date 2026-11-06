@@ -20,8 +20,6 @@ export const useTransaction = routeLoader$(async ctx => {
         [pseudo]
     )
 
-    client.release()
-
     return response.rows
 })
 

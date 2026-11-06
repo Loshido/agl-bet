@@ -10,8 +10,6 @@ export const useAdminAccounts = routeLoader$(async () => {
     const response = await client.query<{ pseudo: string, agl: number }>(`SELECT pseudo, agl FROM utilisateurs
         WHERE roles ? 'admin'`)
 
-    client.release()
-
     return response.rows
 })
 
@@ -57,4 +55,4 @@ export default component$(() => {
             </div>)
         }
     </>
-}) 
+})

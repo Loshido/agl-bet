@@ -37,25 +37,23 @@ const add_agl = server$(async function(pseudo: string, agl: number) {
     const payload = token ? await verify(token, this.env) : null
     if(!payload) return false
     const client = await pg();
-    
+
     try {
         await client.query('BEGIN;')
         const data = await client.query(
-            `SELECT 1 FROM utilisateurs 
-            WHERE pseudo = $1 AND (roles ? 'root' OR roles ? 'admin');`, 
+            `SELECT 1 FROM utilisateurs
+            WHERE pseudo = $1 AND (roles ? 'root' OR roles ? 'admin');`,
             [payload?.pseudo]
         )
         if(data.rowCount === 0) throw 'Not allowed'
         await client.query(
-            `UPDATE utilisateurs SET agl = agl + $2 
+            `UPDATE utilisateurs SET agl = agl + $2
             WHERE pseudo = $1;`, [pseudo, agl]);
 
         await client.query('COMMIT;')
-        client.release()
         return true
     } catch(e) {
         await client.query('ROLLBACK;')
-        client.release()
         return false
     }
 })
@@ -64,25 +62,23 @@ const set_agl = server$(async function(pseudo: string, agl: number) {
     const payload = token ? await verify(token, this.env) : null
     if(!payload) return false
     const client = await pg();
-    
+
     try {
         await client.query('BEGIN;')
         const data = await client.query(
-            `SELECT 1 FROM utilisateurs 
-            WHERE pseudo = $1 AND (roles ? 'root' OR roles ? 'admin');`, 
+            `SELECT 1 FROM utilisateurs
+            WHERE pseudo = $1 AND (roles ? 'root' OR roles ? 'admin');`,
             [payload?.pseudo]
         )
         if(data.rowCount === 0) throw 'Not allowed'
         await client.query(
-            `UPDATE utilisateurs SET agl = $2 
+            `UPDATE utilisateurs SET agl = $2
             WHERE pseudo = $1;`, [pseudo, agl]);
 
         await client.query('COMMIT;')
-        client.release()
         return true
     } catch(e) {
         await client.query('ROLLBACK;')
-        client.release()
         return false
     }
 })
@@ -92,28 +88,26 @@ const set_admin = server$(async function(pseudo: string) {
     const payload = token ? await verify(token, this.env) : null
     if(!payload) return false
     const client = await pg();
-    
+
     try {
         await client.query('BEGIN;')
         const data = await client.query(
-            `SELECT 1 FROM utilisateurs 
-            WHERE pseudo = $1 AND roles ? 'root';`, 
+            `SELECT 1 FROM utilisateurs
+            WHERE pseudo = $1 AND roles ? 'root';`,
             [payload.pseudo]
         )
         if(data.rowCount === 0) throw 'Not allowed'
         await client.query(
-            `UPDATE utilisateurs SET roles = roles || '"admin"' 
+            `UPDATE utilisateurs SET roles = roles || '"admin"'
             WHERE pseudo = $1 AND NOT roles ? 'admin';`, [pseudo]);
 
         await client.query('COMMIT;')
-        client.release()
         return true
     } catch(e) {
         await client.query('ROLLBACK;')
-        client.release()
         return false
     }
-}) 
+})
 
 export const useProfile = routeLoader$(async ctx => {
     const pseudo = ctx.params.pseudo
@@ -126,7 +120,6 @@ export const useProfile = routeLoader$(async ctx => {
 
     if(!utilisateur.rowCount) return null
 
-    client.release()
     return {
         ...utilisateur.rows[0],
         retraits: retraits.rows
@@ -141,14 +134,14 @@ export default component$(() => {
         <div class="font-bold text-2xl my-4 flex-row flex gap-2">
             { loc.params.pseudo }
             {
-                profile.value?.roles.includes("admin") && 
+                profile.value?.roles.includes("admin") &&
                 <div class="px-1.5 py-0.5 rounded-full text-xs bg-yellow text-midnight font-avenir font-medium
                     h-fit leading-3 pt-1">
                     administrateur
                 </div>
             }
             {
-                profile.value?.roles.includes("root") && 
+                profile.value?.roles.includes("root") &&
                 <div class="px-1.5 py-0.5 rounded-full text-xs bg-pink text-midnight font-avenir font-medium
                     h-fit leading-3 pt-1">
                     root
@@ -156,7 +149,7 @@ export default component$(() => {
             }
         </div>
         {
-            profile.value === null 
+            profile.value === null
             ? <>
                 Profile introuvable ⚠️
             </>
@@ -209,11 +202,11 @@ export default component$(() => {
                     </div>
                     </div>
                     {
-                        profile.value.retraits.map((retrait, i) => <div key={i} 
+                        profile.value.retraits.map((retrait, i) => <div key={i}
                             class="grid grid-cols-4">
                             <p class="text-sm text-center">
-                                { retrait.at.toLocaleTimeString(undefined, { 
-                                    timeStyle: 'short' 
+                                { retrait.at.toLocaleTimeString(undefined, {
+                                    timeStyle: 'short'
                                 }) }
                             </p>
                             <p class="font-sobi text-xs col-span-2 text-center">
@@ -230,7 +223,7 @@ export default component$(() => {
 
                 <hr class="my-4 border-white/25 rounded-md"/>
                 <div class="flex flex-row gap-2">
-                    <Link 
+                    <Link
                         href={`/admin/transactions/${profile.value.pseudo}`}
                         class="font-black text-sm my-2
                         py-1.5 px-2 text-center hover:bg-white/50
@@ -238,7 +231,7 @@ export default component$(() => {
                         Transactions
                     </Link>
                     {
-                        !profile.value.roles.includes('admin') 
+                        !profile.value.roles.includes('admin')
                         && <div  onClick$={async () => {
                             const success = await set_admin(profile.value.pseudo)
                             if(success) location.reload()

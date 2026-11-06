@@ -19,8 +19,6 @@ export const useRetraits = routeLoader$(async () => {
         ORDER BY at DESC`
     )
 
-    client.release()
-
     return response.rows
 })
 
@@ -31,8 +29,6 @@ const actionRetrait = server$(async (id: number) => {
         `UPDATE retraits SET effectif = true WHERE id = $1`,
         [id]
     )
-
-    client.release()
 })
 
 export default component$(() => {

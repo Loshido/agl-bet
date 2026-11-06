@@ -13,8 +13,6 @@ export const useTransactions = routeLoader$(async () => {
         `SELECT pseudo FROM utilisateurs WHERE roles ? 'user' ORDER BY pseudo ASC`
     )
 
-    client.release()
-
     return response.rows
 })
 

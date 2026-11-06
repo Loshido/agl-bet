@@ -17,15 +17,15 @@ import kv from "~/lib/kv"
 export const useClassement = routeLoader$(async () => {
     const client = await pg()
     const ballons = kv.get('ballons') === '1'
-    
+
     const response = await client.query<Utilisateur>(
         `SELECT pseudo, agl
         FROM utilisateurs
         WHERE roles ? 'user' AND NOT roles ? 'admin' AND NOT roles ? 'root'
         ORDER BY agl DESC`
-    )    
-    client.release()
-    return [response.rows, ballons] as [Utilisateur[], boolean]
+    )
+
+	return [response.rows, ballons] as [Utilisateur[], boolean]
 })
 
 export default component$(() => {
@@ -43,7 +43,7 @@ export default component$(() => {
             <Fond/>
         </div>
         <div class="mx-auto my-4 md:mt-8">
-            <Podium 
+            <Podium
                 players={
                     classement.length < 3
                     ? [{ pseudo: 'x', agl: 0 },{ pseudo: 'x', agl: 0 },{ pseudo: 'x', agl: 0 }]
@@ -70,7 +70,7 @@ export default component$(() => {
                         { joueur.pseudo }
                     </p>
                     <p class="text-sm font-sobi col-span-2">
-                        { joueur.agl } <span 
+                        { joueur.agl } <span
                             class="text-pink text-xs">agl</span>
                     </p>
                 </>)

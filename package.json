@@ -36,6 +36,7 @@
         "vite-tsconfig-paths": "^4.3.2"
     },
     "dependencies": {
+        "@electric-sql/pglite": "^0.5.15",
         "@node-rs/argon2": "^2.0.2",
         "jose": "^6.2.2",
         "pg": "^8.20.0",

@@ -25,8 +25,7 @@ export const useRetrait = routeAction$(async (data, ctx) => {
             ]
         )
         if(!compte.rowCount) {
-            client.release()
-            throw new Error(
+                throw new Error(
                 "L'utilisateur n'existe pas ou" +
                 "n'a pas les fonds nécessaires pour un retrait")
         }
@@ -42,14 +41,12 @@ export const useRetrait = routeAction$(async (data, ctx) => {
             VALUES ($1, $2)`,
             [payload.pseudo, data.somme]
         )
-        
+
         await client.query('COMMIT')
     } catch(e) {
         await client.query('ROLLBACK')
         throw e
     }
-
-    client.release()
 
     return {
         message: "Votre retrait a été enregistré avec succès. 💵",
@@ -62,7 +59,7 @@ export const useRetrait = routeAction$(async (data, ctx) => {
 import Back from "~/assets/icons/back.svg?jsx"
 import { MetaContext } from "../../layout";
 import { Payload } from "~/lib/jwt";
-export default component$(() => {    
+export default component$(() => {
     const payload = useContext(MetaContext)
     const latest = useSignal(0)
     const somme = useSignal<number>()
@@ -71,7 +68,7 @@ export default component$(() => {
 
     return <section class="flex flex-col gap-4 p-2 lg:px-80">
         <header class="w-full flex flex-row items-center justify-center p-4 relative">
-            <Link class="p-2 rounded-md flex flex-row items-center gap-2 
+            <Link class="p-2 rounded-md flex flex-row items-center gap-2
                 bg-white/25 hover:bg-white/50
                 absolute left-4"
                 href="/home/bank">
@@ -85,7 +82,7 @@ export default component$(() => {
             Retirer de l'argents
         </h1>
         <p class="px-4 sm:px-8">
-            Pour procéder, vous devez enregistrer votre retrait 
+            Pour procéder, vous devez enregistrer votre retrait
             puis demander les <span class="text-pink font-sobi text-sm">agl </span>
             à un membre du staff.
         </p>
@@ -93,7 +90,7 @@ export default component$(() => {
         <input type="number" class="mx-4 px-4 sm:px-8 py-4 bg-white/25 rounded-md
             font-sobi text-xl outline-none" bind:value={somme}
             placeholder="Montant"/>
-        <input type="submit" value="Retirer" 
+        <input type="submit" value="Retirer"
             class="mx-4 px-4 sm:px-8 py-4 bg-pink rounded-md hover:bg-pink/75
             font-sobi text-xl cursor-pointer" onClick$={async () => {
                 if(!somme.value) {

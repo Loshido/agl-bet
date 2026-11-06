@@ -1,27 +1,17 @@
-import { Pool, type PoolClient } from "pg";
+import fs from "fs/promises"
+import { PGlite } from "@electric-sql/pglite"
 
-let pool: Pool | null = null
-export const setup = () => {
-    const secret = process.env.POSTGRES
-    if(!secret) throw new Error('variable POSTGRES introuvable')
-    
-    pool = new Pool({
-        connectionString: secret,
-        max: 20,
-        idleTimeoutMillis: 7000,
-        connectionTimeoutMillis: 2000,
-    })
-    
-    if(process.env.DEV) {
-        setInterval(() => {
-            console.log(`[db] ${pool?.totalCount } active connections`)
-        }, 1000 * 60 * 60);
-    }
+let pg: PGlite | null = null
+export const init = async (): Promise<PGlite> => {
+	const secret = process.env.POSTGRES
+	pg = new PGlite(secret || './db/data')
 
-    return pool
+	const INIT_QUERY = await fs.readFile('./db/init/1. tables.sql', 'utf-8')
+   	pg.exec(INIT_QUERY)
+
+    return pg
 }
 
-export default (): Promise<PoolClient> => {
-    if(!pool) return setup().connect()
-    return pool.connect()
+export default async (): Promise<PGlite> => {
+    return pg || init()
 };

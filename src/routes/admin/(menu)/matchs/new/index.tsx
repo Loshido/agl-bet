@@ -12,13 +12,13 @@ interface Match {
 
 import pg from "~/lib/pg";
 export const createMatch = server$(async (match: Match): Promise<string> => {
-    if(match.titre.length === 0) 
+    if(match.titre.length === 0)
         return "Le titre n'est pas défini"
-    if(match.informations.length === 0) 
+    if(match.informations.length === 0)
         return "La description n'est pas défini"
-    if(match.fermeture === null) 
+    if(match.fermeture === null)
         return "La fermeture n'est pas défini"
-    if(match.ouverture === null) 
+    if(match.ouverture === null)
         return "L'ouverture n'est pas défini"
     if(match.equipes.length < 2)
         return "Il n'y a pas assez d'équipes"
@@ -28,25 +28,23 @@ export const createMatch = server$(async (match: Match): Promise<string> => {
     const client = await pg()
 
     const response = await client.query<Match & { id: number, agl: number, participants: number }>(
-        `INSERT INTO matchs 
+        `INSERT INTO matchs
         (titre, informations, ouverture, fermeture, equipes, statut)
         VALUES ($1, $2, $3, $4, $5, $6)
         RETURNING *`,
-        [   
-            match.titre, 
-            match.informations, 
-            match.ouverture, 
+        [
+            match.titre,
+            match.informations,
+            match.ouverture,
             match.fermeture,
             JSON.stringify(match.equipes),
             "en attente"
         ]
     )
 
-    client.release()
-
     if(!response.rowCount) {
         console.error(
-            "[admin][db] Erreur dans l'insertion d'un match.", 
+            "[admin][db] Erreur dans l'insertion d'un match.",
             response
         )
     }
@@ -64,11 +62,11 @@ export default component$(() => {
         equipes: []
     })
 
-    return <section class="w-full md:w-fit flex flex-col gap-1 
+    return <section class="w-full md:w-fit flex flex-col gap-1
         bg-white/10 p-4 rounded-md relative
         md:mx-auto md:min-w-2xl">
         <input placeholder="Titre du match"
-            class="font-sobi text-3xl outline-none 
+            class="font-sobi text-3xl outline-none
             placeholder:animate-pulse placeholder:text-pink"
             onInput$={(_, t) => match.titre = t.value}/>
         <div class="flex flex-col gap-2" >
@@ -81,7 +79,7 @@ export default component$(() => {
                     <span class="text-sm text-center">
                         Ouverture
                     </span>
-                    <input type="datetime-local" 
+                    <input type="datetime-local"
                         class="font-avenir font-medium w-48 text-center outline-none
                         placeholder:animate-pulse placeholder:text-pink"
                         onInput$={(_, t) => match.ouverture = new Date(t.value)}/>
@@ -90,7 +88,7 @@ export default component$(() => {
                     <span class="text-sm text-center">
                         Fermeture
                     </span>
-                    <input type="datetime-local" 
+                    <input type="datetime-local"
                         class="font-avenir font-medium w-48 text-center outline-none"
                         onInput$={(_, t) => match.fermeture = new Date(t.value)}/>
                 </div>
@@ -99,11 +97,11 @@ export default component$(() => {
 
         <div class="flex flex-row flex-wrap items-center py-4 overflow-x-auto gap-2">
             {
-                match.equipes.map((equipe, i, a) => <div 
+                match.equipes.map((equipe, i, a) => <div
                     key={i}
                     class="flex flex-row items-center gap-2">
-                    <div 
-                        class="py-2 flex flex-col gap-1 
+                    <div
+                        class="py-2 flex flex-col gap-1
                             items-center justify-center">
                         <Icon class="h-12 w-12 rounded-md"/>
                         <input type="text"
@@ -126,7 +124,7 @@ export default component$(() => {
                 "cursor-pointer select-none",
                 match.equipes.length < 2 && 'animate-pulse text-pink']}
                 onClick$={() => match.equipes.push('')}>
-                <div class="h-12 w-12 bg-white/25 text-white flex items-center 
+                <div class="h-12 w-12 bg-white/25 text-white flex items-center
                     justify-center font-bold rounded-md  group-hover:bg-white/50 transition-colors">
                     +
                 </div>
@@ -134,7 +132,7 @@ export default component$(() => {
                     Nouvelle équipe
                 </p>
             </div>
-            
+
         </div>
         <div class="flex flex-row items-center gap-2">
             <button class="px-2 py-1 sm:px-3 rounded-md flex flex-row items-center gap-2
@@ -142,8 +140,8 @@ export default component$(() => {
                 disabled:bg-white/25 disabled:cursor-not-allowed disabled:text-white/50
                 hover:bg-pink/75 bg-pink/50 cursor-pointer"
                 disabled={
-                    match.equipes.length < 2 || 
-                    !match.fermeture || !match.ouverture || 
+                    match.equipes.length < 2 ||
+                    !match.fermeture || !match.ouverture ||
                     match.equipes.some(eq => eq.length === 0) ||
                     match.titre.length == 0 || match.informations.length== 0
                 }

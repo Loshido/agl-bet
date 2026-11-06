@@ -18,7 +18,6 @@ export const useMatch = routeLoader$(async ctx => {
     )
 
     if(!response.rowCount) {
-        client.release()
         return null
     }
 
@@ -29,10 +28,9 @@ export const useMatch = routeLoader$(async ctx => {
         WHERE match = $1`,
         [ctx.params.id]
     )
-    client.release()
 
     const equipes: { [equipe: string]: number } = {}
-    
+
     match.equipes.forEach(equipe => equipes[equipe] = 0)
     paris.rows.forEach(row => {
         if(row.equipe in equipes)
@@ -43,9 +41,9 @@ export const useMatch = routeLoader$(async ctx => {
         ...match,
         equipes: Object.keys(equipes)
             .map(equipe => [
-                equipe, 
+                equipe,
                 equipes[equipe]
-            ]) 
+            ])
     } satisfies Omit<Match, 'equipes'> & {
         equipes: [string, number][]
     }
@@ -78,13 +76,13 @@ export const parier = server$(async function(pari: number, equipe: string) {
             VALUES ($1, $2, $3)`,
             [pseudo, -pari, `Pari pour ${ equipe } (${match})`]
         )
-        
+
         await client.query(
             `INSERT INTO paris (pseudo, agl, match, equipe)
             VALUES ($1, $2, $3, $4)`,
             [pseudo, pari, match, equipe]
         )
-        
+
         const matchs = await client.query<Match>(
             `UPDATE matchs SET participants = participants + 1, agl = agl + $2
             WHERE id = $1 RETURNING *`,
@@ -94,13 +92,11 @@ export const parier = server$(async function(pari: number, equipe: string) {
             throw new Error("Match non mis à jours.")
         }
         this.sharedMap.delete('payload')
-        
+
         await client.query('COMMIT')
-        client.release()
     } catch(e) {
         console.error(`[match][^${pseudo}]`,e)
         await client.query('ROLLBACK')
-        client.release()
         return false
     }
     return true
@@ -114,9 +110,9 @@ export default component$(() => {
     const payload = useContext(MetaContext)
     const input = useSignal<HTMLInputElement>()
     const nav = useNavigate()
-    const pari = useStore<{ 
-        agl: number, 
-        equipe: string | null, 
+    const pari = useStore<{
+        agl: number,
+        equipe: string | null,
         cote: number | null
     }>({
         agl: 0,
@@ -126,16 +122,16 @@ export default component$(() => {
     const gain = useComputed$(() => {
         if(!pari.cote) return NaN
         if(!match.value) return NaN
-        return Math.floor(pari.agl * (match.value.agl + pari.agl) 
+        return Math.floor(pari.agl * (match.value.agl + pari.agl)
         / ((match.value.agl / pari.cote) + pari.agl))
     })
 
-    if(!match.value) return <section class="min-h-64 h-full w-full flex flex-col 
+    if(!match.value) return <section class="min-h-64 h-full w-full flex flex-col
         items-center justify-center">
         <p class="text-2xl font-semibold">
             Ce match n'existe pas.
         </p>
-        <Link href="/home/match" 
+        <Link href="/home/match"
             class="text-pink hover:text-pink/75 transition-colors">
                 Revenir aux matchs
         </Link>
@@ -148,10 +144,10 @@ export default component$(() => {
         <p class="text-white/75 text-wrap">
             { match.value.informations }
             <span class="text-white/75 text-xs italic"
-                title="Période d'ouverture des paris"> - { 
+                title="Période d'ouverture des paris"> - {
                 match.value.ouverture.toLocaleTimeString(undefined, {
                     timeStyle: 'short'
-                }) } - { 
+                }) } - {
                 match.value.fermeture.toLocaleTimeString(undefined, {
                     timeStyle: 'short'
                 })
@@ -176,10 +172,10 @@ export default component$(() => {
 
         <div class="absolute w-full flex flex-col gap-2 items-center
             bottom-0 left-0 p-4 md:p-8 lg:p-16 bg-midnight z-10">
-            
+
             {
-                pari.equipe && pari.agl > 0 && <div 
-                    class="text-xl font-sobi text-white/50 flex 
+                pari.equipe && pari.agl > 0 && <div
+                    class="text-xl font-sobi text-white/50 flex
                     flex-row gap-2">
                     <p>
                         Gains potentiels
@@ -191,9 +187,9 @@ export default component$(() => {
                     }
                 </div>
             }
-            
+
             <div class="sm:grid grid-cols-6 gap-2 font-sobi text-xl w-full">
-                <button class="hidden sm:block h-full w-full rounded-md 
+                <button class="hidden sm:block h-full w-full rounded-md
                     bg-white/25 py-2 text-center
                     transition-colors hover:bg-white/50"
                     onClick$={() => {
@@ -204,7 +200,7 @@ export default component$(() => {
                         }
                     }}>
                     -100</button>
-                <button class="hidden sm:block h-full w-full rounded-md 
+                <button class="hidden sm:block h-full w-full rounded-md
                     bg-white/25 py-2 text-center
                     transition-colors hover:bg-white/50"
                     onClick$={() => {
@@ -219,7 +215,7 @@ export default component$(() => {
                     bg-white/25 py-2 text-center outline-none"
                     placeholder="Paris" ref={input}
                     type="number" onInput$={(_, t) => pari.agl = parseInt(t.value)} />
-                <button class="hidden sm:block h-full w-full rounded-md 
+                <button class="hidden sm:block h-full w-full rounded-md
                     bg-white/25 py-2 text-center
                     transition-colors hover:bg-white/50"
                     onClick$={() => {
@@ -229,7 +225,7 @@ export default component$(() => {
                         }
                     }}>
                     +10</button>
-                <button class="hidden sm:block h-full w-full rounded-md 
+                <button class="hidden sm:block h-full w-full rounded-md
                     bg-white/25 py-2 text-center
                     transition-colors hover:bg-white/50"
                     onClick$={() => {
@@ -240,10 +236,10 @@ export default component$(() => {
                     }}>
                     +100</button>
             </div>
-            <button class="w-full px-4 py-2 font-sobi text-2xl 
+            <button class="w-full px-4 py-2 font-sobi text-2xl
                 bg-pink rounded-md text-center disabled:bg-pink/50
                 disabled:text-white/50"
-                disabled={ !pari.equipe  || pari.agl === 0 
+                disabled={ !pari.equipe  || pari.agl === 0
                     || pari.agl > payload.agl }
                 onClick$={async (_, t) => {
                     if(t.disabled || !pari.equipe) return;

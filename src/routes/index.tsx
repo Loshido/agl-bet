@@ -13,7 +13,7 @@ export const onGet: RequestHandler = async ctx => {
     if(payload) {
         if(payload.roles.includes('admin'))
             throw ctx.redirect(302, '/admin')
-        if(payload.roles.includes('user')) 
+        if(payload.roles.includes('user'))
             throw ctx.redirect(302, '/home');
         throw ctx.redirect(302, '/inactif')
     }
@@ -24,18 +24,17 @@ const submit = server$(async function(pseudo: string, pass: string): Promise<[nu
     pseudo = pseudo.toLowerCase().trim() // practicité
     if(pass.length < 4) return [400, "Mots de passe trop court!"]
     if(pseudo.length < 4) return [400, "Pseudo trop court!"]
-    
+
     const client = await pg();
-    
+
     const response = await client.query<Response>(
-        `SELECT pseudo, pass, roles FROM utilisateurs WHERE pseudo = $1`, 
+        `SELECT pseudo, pass, roles FROM utilisateurs WHERE pseudo = $1`,
         [pseudo]
     );
-    
+
     if(!response.rowCount) {
         if(kv.get('inscriptions') !== '1') {
-            client.release()
-            return [501, 'Les inscriptions ne sont plus ouvertes.']
+                return [501, 'Les inscriptions ne sont plus ouvertes.']
         }
 
         // l'utilisateur n'existe pas
@@ -51,7 +50,6 @@ const submit = server$(async function(pseudo: string, pass: string): Promise<[nu
             `INSERT INTO utilisateurs (pseudo, pass, roles, agl) VALUES ($1, $2, '[]', $3);`,
             [pseudo, computed_pass, agl]
         );
-        client.release()
 
         const jwt = await sign({ pseudo, roles: [] }, this.env)
         if(!jwt) return [500, "Erreur renversante 👀"]
@@ -61,13 +59,13 @@ const submit = server$(async function(pseudo: string, pass: string): Promise<[nu
             ...cookie
         });
 
-        return insertion.rowCount 
-            ? [401, "Compte en attente"] 
+        return insertion.rowCount
+            ? [401, "Compte en attente"]
             : [400, "Erreur stupéfiante 👀"]
     }
     client.release()
 
-    if(await compare(pass, response.rows[0].pass) === false) 
+    if(await compare(pass, response.rows[0].pass) === false)
         return [400, "Erreur palpitante 👀"]
 
     const roles = response.rows[0].roles
@@ -91,7 +89,7 @@ const onSubmit = (message: Signal<string>, nav: RouteNavigate) => {
             message.value = 'Veuillez remplir les entrées'
             return
         }
-        
+
         const [code, reponse] = await submit(pseudo.value, pass.value)
         switch(code) {
             case 200:
@@ -115,4 +113,3 @@ export default component$(() => {
         message={message}
         onSubmit={onSubmit(message, nav)}/>
 });
-

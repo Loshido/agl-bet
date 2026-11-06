@@ -10,7 +10,7 @@ interface Pari {
     match: number,
     agl: number,
     equipe: string,
-    at: Date    
+    at: Date
 }
 
 export const useLive = routeLoader$(async ctx => {
@@ -21,8 +21,8 @@ export const useLive = routeLoader$(async ctx => {
     const client = await pg();
 
     const response = await client.query<Pari>(
-        `SELECT 
-            p.id, p.match, p.agl, 
+        `SELECT
+            p.id, p.match, p.agl,
             p.equipe, p.at,
             m.titre, m.informations
         FROM paris p
@@ -30,8 +30,6 @@ export const useLive = routeLoader$(async ctx => {
         WHERE pseudo = $1 AND fermeture > now()`,
         [payload.pseudo]
     )
-
-    client.release()
 
     return response.rows
 })
@@ -47,7 +45,7 @@ export const retirer = server$(async function(id: number, match: number) {
     try {
         await client.query('BEGIN')
         const paris = await client.query<{ agl: number, equipe: string }>(
-            `DELETE FROM paris 
+            `DELETE FROM paris
             WHERE id = $2 AND pseudo = $1
             RETURNING agl, equipe`,
             [pseudo, id]
@@ -59,7 +57,7 @@ export const retirer = server$(async function(id: number, match: number) {
         const pari = paris.rows[0]
 
         const matchs = await client.query<unknown & { id: number }>(
-            `UPDATE matchs SET 
+            `UPDATE matchs SET
             agl = agl - $2, participants = participants - 1
             WHERE id = $1
             RETURNING *`,
@@ -80,14 +78,12 @@ export const retirer = server$(async function(id: number, match: number) {
             WHERE pseudo = $1`,
             [pseudo, pari.agl]
         )
-        
+
         await client.query('COMMIT')
     } catch {
         await client.query('ROLLBACK')
-        client.release()
         return false
     }
-    client.release()
     return true
 })
 
@@ -100,13 +96,13 @@ export default component$(() => {
             Paris actifs
         </h1>
         {
-            live.value.length === 0 ? <section 
+            live.value.length === 0 ? <section
                 class="min-h-96 text-center my-auto text-xl">
                 Vous n'avez aucun pari actif 🤑
             </section>
             : null
         }
-        {  
+        {
             live.value.map(pari => <div key={pari.id}
                 class="bg-white/10 p-4 rounded-md
                 grid grid-cols-2 grid-rows-3">
@@ -120,13 +116,13 @@ export default component$(() => {
                 </div>
                 <div class="row-span-3 h-full w-full font-sobi text-xl
                     flex items-center text-center justify-end">
-                    { pari.agl } 
+                    { pari.agl }
                     <span class="text-sm font-avenir mx-2">
                         sur { pari.equipe }
-                    </span> 
+                    </span>
                 </div>
                 <div class="text-xs text-gray-500/75 w-fit hover:text-gray-500
-                    py-1 cursor-pointer select-none uppercase font-bold" 
+                    py-1 cursor-pointer select-none uppercase font-bold"
                     onClick$={async () => {
                         const succes = await retirer(pari.id, pari.match)
                         if(succes) {

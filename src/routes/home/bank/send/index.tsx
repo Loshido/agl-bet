@@ -22,19 +22,18 @@ export const useEnvoyer = routeAction$(async (data, ctx) => {
     const origine = payload.pseudo;
     const destinataire = data.pseudo;
     const somme = data.somme;
-    
+
     const client = await pg()
     try {
         await client.query('BEGIN')
 
         const ids = await client.query(
-            `SELECT pseudo FROM utilisateurs 
+            `SELECT pseudo FROM utilisateurs
             WHERE pseudo = $1 OR pseudo = $2`,
             [origine, destinataire])
         if(!ids.rowCount || ids.rowCount != 2) {
             await client.query('ROLLBACK');
-            client.release()
-            return {
+                return {
                 message: "L'utilisateur n'existe pas 🕵️",
                 status: false,
             }
@@ -58,15 +57,12 @@ export const useEnvoyer = routeAction$(async (data, ctx) => {
                 destinataire, somme, `Virement de ${origine}`
             ]
         )
-        
+
         await client.query('COMMIT')
     } catch(e) {
         await client.query('ROLLBACK')
-        client.release()
         throw e
     }
-    
-    client.release()
 
     return {
         message: "Votre virement a été effectué avec succès. 💵",
@@ -80,7 +76,7 @@ export const useEnvoyer = routeAction$(async (data, ctx) => {
 import Back from "~/assets/icons/back.svg?jsx"
 import { Payload } from "~/lib/jwt";
 import { MetaContext } from "../../layout";
-export default component$(() => {    
+export default component$(() => {
     const payload = useContext(MetaContext)
     const envoie = useEnvoyer()
     const data = useStore({
@@ -91,7 +87,7 @@ export default component$(() => {
 
     return <section class="flex flex-col gap-4 p-2 lg:px-80">
         <header class="w-full flex flex-row items-center justify-center p-4 relative">
-            <Link class="p-2 rounded-md flex flex-row items-center gap-2 
+            <Link class="p-2 rounded-md flex flex-row items-center gap-2
                 bg-white/25 hover:bg-white/50
                 absolute left-4"
                 href="/home/bank">
@@ -110,7 +106,7 @@ export default component$(() => {
         <input type="number" class="mx-4 px-4 sm:px-8 py-4 bg-white/25 rounded-md
             font-sobi text-xl outline-none" onInput$={(_, t) => data.montant = parseInt(t.value)}
             placeholder="Montant" />
-        <input type="submit" value="Envoyer" 
+        <input type="submit" value="Envoyer"
             class="mx-4 px-4 sm:px-8 py-4 bg-pink rounded-md hover:bg-pink/75
             font-sobi text-xl cursor-pointer" onClick$={async () => {
                 if(data.pseudo.length === 0) {

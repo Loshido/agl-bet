@@ -13,19 +13,17 @@ interface Match {
 
 export const useMatchs = routeLoader$(async () => {
     const client = await pg()
-    
+
     const response = await client.query<Match>(
         `SELECT id, titre, informations, ouverture, fermeture
         FROM matchs
         WHERE statut = 'en attente'`
     )
 
-    client.release()
-    
     return response.rows
 })
 
-type Action = { type: 'supprimer' } | 
+type Action = { type: 'supprimer' } |
     { type: 'allonger', temps: number } |
     { type: 'fermer' }
 export const actionMatch = server$(async (id: number, action: Action) => {
@@ -33,15 +31,13 @@ export const actionMatch = server$(async (id: number, action: Action) => {
 
     if(action.type === "allonger") {
         if(typeof action.temps !== 'number') {
-            client.release()
-            return false
+                return false
         }
         await client.query(
             `UPDATE matchs SET fermeture = fermeture + INTERVAL '${action.temps} minutes'
             WHERE id = $1`,
             [id]
         )
-        client.release()
         return true
     }
     if(action.type === "supprimer") {
@@ -52,7 +48,7 @@ export const actionMatch = server$(async (id: number, action: Action) => {
                 RETURNING pseudo, agl`,
                 [id]
             )
-    
+
             for(const { pseudo, agl } of paris.rows) {
                 await Promise.all([
                     client.query(
@@ -67,7 +63,7 @@ export const actionMatch = server$(async (id: number, action: Action) => {
                     )
                 ])
             }
-            
+
             await client.query(
                 `DELETE FROM matchs
                 WHERE id = $1`,
@@ -77,8 +73,7 @@ export const actionMatch = server$(async (id: number, action: Action) => {
             return true
         } catch(e) {
             await client.query('ROLLBACK')
-            client.release()
-            return false
+                return false
         }
     }
     if(action.type === "fermer") {
@@ -87,12 +82,8 @@ export const actionMatch = server$(async (id: number, action: Action) => {
             WHERE id = $1`,
             [id]
         )
-        client.release()
-
         return true
     }
-
-    client.release()
     return false
 })
 
@@ -101,14 +92,14 @@ export default component$(() => {
     const matchs = useStore(signal.value)
     const selection = useSignal<null | number>(null)
     return <>
-        <Link href="/admin/matchs/new" 
+        <Link href="/admin/matchs/new"
             class="px-2 py-1 sm:px-3 rounded-md flex flex-row items-center gap-2
             transition-colors bg-white/25 hover:bg-white/50 w-fit font-avenir">
             Créer un nouveau match
         </Link>
         <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-2">
             {
-                matchs.map(match => <div key={match.id} 
+                matchs.map(match => <div key={match.id}
                     class="flex flex-col sm:grid p-3 rounded-md grid-cols-3 justify-between gap-2
                     sm:items-center bg-white/25">
                     <div class="flex flex-col gap-2 col-span-2">
@@ -118,10 +109,10 @@ export default component$(() => {
                         <p class="text-white/75 text-wrap">
                             { match.informations }
                             <span class="text-white/75 text-xs italic"
-                                title="Période d'ouverture des paris"> - { 
+                                title="Période d'ouverture des paris"> - {
                                 match.ouverture.toLocaleTimeString(undefined, {
                                     timeStyle: 'short'
-                                }) } - { 
+                                }) } - {
                                 match.fermeture.toLocaleTimeString(undefined, {
                                     timeStyle: 'short'
                                 })
@@ -129,9 +120,9 @@ export default component$(() => {
                         </p>
                     </div>
                     <div class="w-full h-full flex flex-row justify-end items-start">
-                        { 
+                        {
                             match.fermeture.getTime() < Date.now()
-                            ? <Link 
+                            ? <Link
                                 href={`/admin/matchs/${match.id}`}
                                 class="px-2 py-1 bg-white/25 rounded-md
                                 transition-colors hover:bg-pink/75">

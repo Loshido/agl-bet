@@ -22,8 +22,6 @@ export const useMatchs = routeLoader$(async () => {
         WHERE fermeture > now() AND ouverture < now()
         ORDER BY fermeture ASC`
     )
-    
-    client.release()
 
     return response.rows
 })
@@ -32,14 +30,14 @@ export default component$(() => {
     const signal = useMatchs()
     const matchs = useStore(signal.value)
 
-    if(matchs.length === 0) return <section 
+    if(matchs.length === 0) return <section
         class="min-h-96 text-center my-auto text-xl">
         Aucun match n'est sur le point de commencer 😧
     </section>
 
     return <>
         {
-            matchs.map(match => 
+            matchs.map(match =>
                 <Affiche
                     key={match.id}
                     match={match}/>)

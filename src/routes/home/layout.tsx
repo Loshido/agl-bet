@@ -7,10 +7,10 @@ export const onRequest: RequestHandler = async ctx => {
     const token = ctx.cookie.get('token')?.value
     const payload = token ? await verify(token, ctx.env) : null
     if(!payload || !payload.roles.includes('user')) throw ctx.redirect(302, '/')
-        
+
     ctx.sharedMap.set('payload', payload)
 }
-    
+
 export interface Meta {
     agl: number,
     roles: string[]
@@ -18,7 +18,7 @@ export interface Meta {
 
 export const getMeta = server$(async function() {
     const token = this.cookie.get('token')?.value;
-    const payload = token ? await verify(token, this.env) : null 
+    const payload = token ? await verify(token, this.env) : null
     if(!payload) return null
 
     const client = await pg()
@@ -26,8 +26,7 @@ export const getMeta = server$(async function() {
         `SELECT agl, roles FROM utilisateurs WHERE pseudo = $1`,
         [payload.pseudo]
     )
-    
-    client.release()
+
     if(response.rowCount === 0) return null
 
     const user = response.rows[0]
@@ -35,8 +34,8 @@ export const getMeta = server$(async function() {
     const sameLength = user.roles.length !== payload.roles.length
     const match = user.roles.every(role => payload.roles.includes(role))
     if(!sameLength || !match) {
-        const jwt = await sign({ roles: user.roles, pseudo: payload.pseudo }, this.env) 
-        if(jwt) this.cookie.set('token', jwt, cookie) 
+        const jwt = await sign({ roles: user.roles, pseudo: payload.pseudo }, this.env)
+        if(jwt) this.cookie.set('token', jwt, cookie)
     }
 
     return response.rows[0]

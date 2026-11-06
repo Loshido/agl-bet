@@ -15,24 +15,23 @@ export const useUtilisateurs = routeLoader$(async () => {
         WHERE roles ? 'user'`
     )
 
-    client.release()
-    return utilisateurs.rows
+	return utilisateurs.rows
 })
 
 export default component$(() => {
     const utilisateurs = useUtilisateurs()
     return <>
         {
-            utilisateurs.value.map(utilisateur => <div 
+            utilisateurs.value.map(utilisateur => <div
                 key={utilisateur.pseudo}
                 class="grid grid-cols-4 gap-2 *:transition-colors items-center">
                 <p class="col-span-2">
-                    {utilisateur.pseudo} 
+                    {utilisateur.pseudo}
                 </p>
                 <p class="font-sobi">
                     {utilisateur.agl} <span class="text-xs text-pink">agl</span>
                 </p>
-                <Link class="py-1.5 px-2 font-bold text-center hover:bg-white/50 
+                <Link class="py-1.5 px-2 font-bold text-center hover:bg-white/50
                     bg-white/25 cursor-pointer select-none rounded-sm" prefetch={false}
                     href={`/admin/comptes/${ utilisateur.pseudo }`}>
                     Voir

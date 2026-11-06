@@ -7,16 +7,15 @@ export const useMatch = routeLoader$(async ctx => {
     const id = ctx.params.id;
     const client = await pg();
 
-    const matchs = await client.query<{ 
-        equipes: string[], 
-        titre: string, 
-        informations: string 
+    const matchs = await client.query<{
+        equipes: string[],
+        titre: string,
+        informations: string
     }>(
-        `SELECT titre, informations, equipes FROM matchs WHERE 
+        `SELECT titre, informations, equipes FROM matchs WHERE
         id = $1 AND fermeture < now() AND statut = 'en attente'`,
         [id]
     )
-    client.release()
 
     if(!matchs.rowCount) {
         throw ctx.redirect(302, '/admin/matchs')
@@ -48,7 +47,7 @@ export const choisirGagnant = server$(async function(gagnant: string) {
         const cote = cagnotte / cagnotte_gagnante
         console.log(`[admin] Le gagnant du match ${ this.params.id }`
             + ` est ${gagnant} avec une cote à ${cote}`);
-            
+
         for(const { pseudo, agl } of paris.rows) {
             await client.query(
                 `UPDATE utilisateurs SET agl = agl + $2
@@ -63,12 +62,10 @@ export const choisirGagnant = server$(async function(gagnant: string) {
         }
 
         await client.query('COMMIT')
-        client.release()
         return true
     } catch(e) {
         await client.query('ROLLBACK')
         console.error('[admin][db]',e)
-        client.release()
         return false
     }
 })
@@ -88,7 +85,7 @@ export default component$(() => {
             Choix du gagnant
         </h2>
         <div class="grid grid-cols-2 lg:grid-cols-3 gap-2 w-full">
-            { 
+            {
                 match.value.equipes.map(equipe => <Equipe
                     key={equipe}
                     equipe={equipe}
@@ -100,7 +97,7 @@ export default component$(() => {
                     class={ gagnant.value === equipe
                         ? 'bg-pink/25'
                         : 'bg-white/10' }
-                />) 
+                />)
             }
         </div>
 
