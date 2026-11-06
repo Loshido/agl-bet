@@ -20,8 +20,9 @@
 }
 
 @theme {
-    --color-pink: #FC43A1;
+    --color-pink: #26386A;
     --color-midnight: #080E1A;
+    --color-bds: #F8E1C3;
     --color-yellow: #FFE500;
     --font-avenir: "Avenir";
     --font-sobi: "Sobiscuit";

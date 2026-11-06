@@ -1,5 +1,4 @@
 import type { QRL, Signal } from "@builder.io/qwik"
-import Logo from "~/assets/logo.svg?jsx"
 import Fond from "~/assets/fond.svg?jsx"
 import BDS from "~/assets/bds.png?jsx"
 import IE from "~/assets/ie.png?jsx"
@@ -10,12 +9,23 @@ interface Props {
 }
 
 export default ({ onSubmit, message }: Props) => <section
-    class="w-screen h-svh flex flex-col items-center justify-center gap-16">
+    class="w-screen h-svh flex flex-col items-center justify-center gap-8">
     <div class="-z-10 *:absolute *:top-0 *:left-0 *:w-full *:h-full animate-pulse
         md:opacity-25">
         <Fond/>
+	</div>
+	<div class="flex flex-row items-center gap-4">
+		<div class="w-24 h-24 p-2">
+		    <BDS/>
+		</div>
+		<span class="italic uppercase">x</span>
+        <div class="w-24 h-24 p-2">
+            <IE/>
+		</div>
     </div>
-    <Logo class="md:h-36 w-auto h-28"/>
+	<h1 class="font-black text-3xl md:text-4xl uppercase font-sobi">
+		Soirée FIFA
+	</h1>
     <div class="flex flex-col gap-4 *:outline-none font-semibold pb-32">
         <input type="text" placeholder="Pseudo" name="pseudo" required={true}
             class="p-4 rounded-lg text-xl leading-0
@@ -34,14 +44,5 @@ export default ({ onSubmit, message }: Props) => <section
         <pre class="font-avenir font-light text-center">
             { message.value }
         </pre>
-    </div>
-    <div class="bottom-8 left-0 md:left-8 flex flex-row gap-0
-        justify-center md:justify-start w-screen md:w-fit absolute md:fixed">
-        <div class="w-24 h-24 p-2">
-            <BDS/>
-        </div>
-        <div class="w-24 h-24 p-2">
-            <IE/>
-        </div>
     </div>
 </section>

@@ -18,16 +18,16 @@ export default async () => {
                 scalar: 0.8,
                 startVelocity: 10,
                 decay: 0.95,
-                colors: ["#FC43A1", "#FFFFFF", "#FFE500"],
+                colors: ["#26386A", "#F8E1C3", "#FFE500"],
                 shapes: ["square"],
                 gravity: 0.5,
                 disableForReducedMotion: true,
-                origin: { 
+                origin: {
                     x: rand(10, 0) * 0.1,
                     y: rand(10, 0) * 0.1
                 }
             })
-            
+
             requestAnimationFrame(frame)
             return
         }
@@ -40,7 +40,7 @@ export default async () => {
             spread: 65,
             angle: 60,
             origin: { x: 0, y: 1 },
-            colors: ["#FC43A1", "#FFFFFF", "#FFE500"],
+            colors: ["#26386A", "#F8E1C3", "#FFE500"],
             decay: d1,
             ticks: 100,
             scalar: 0.5 + Math.random() * 0.5,
@@ -53,7 +53,7 @@ export default async () => {
             angle: 105,
             decay: d2,
             origin: { x: 1, y: 1 },
-            colors: ["#FC43A1", "#FFFFFF", "#FFE500"],
+            colors: ["#26386A", "#F8E1C3", "#FFE500"],
             scalar: 0.5 + Math.random() * 0.5
         });
         requestAnimationFrame(frame);
