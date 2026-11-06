@@ -2,7 +2,7 @@ import { component$, useStore, useVisibleTask$ } from "@builder.io/qwik";
 import { routeLoader$ } from "@builder.io/qwik-city";
 import Podium from "~/components/classement/podium";
 import Fond from "~/assets/fond.svg?jsx"
-import CA_PCA from "~/assets/ca-pca.png?jsx"
+import BDS from "~/assets/bds.png?jsx"
 import IE from "~/assets/ie.png?jsx"
 import confetti from "~/components/classement/confetti"
 
@@ -76,10 +76,10 @@ export default component$(() => {
                 </>)
             }
         </div>
-        <div class="bottom-8 left-0 md:left-8 flex flex-row gap-2
+        <div class="bottom-8 left-0 md:left-8 flex flex-row gap-0
             justify-center md:justify-start w-screen md:w-fit absolute md:fixed">
-            <div class="w-24 h-24 p-4">
-                <CA_PCA/>
+            <div class="w-24 h-24 p-2">
+                <BDS/>
             </div>
             <div class="w-24 h-24 p-2">
                 <IE/>

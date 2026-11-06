@@ -1,7 +1,7 @@
 import type { QRL, Signal } from "@builder.io/qwik"
 import Logo from "~/assets/logo.svg?jsx"
 import Fond from "~/assets/fond.svg?jsx"
-import CA_PCA from "~/assets/ca-pca.png?jsx"
+import BDS from "~/assets/bds.png?jsx"
 import IE from "~/assets/ie.png?jsx"
 
 interface Props {
@@ -35,10 +35,10 @@ export default ({ onSubmit, message }: Props) => <section
             { message.value }
         </pre>
     </div>
-    <div class="bottom-8 left-0 md:left-8 flex flex-row gap-2
+    <div class="bottom-8 left-0 md:left-8 flex flex-row gap-0
         justify-center md:justify-start w-screen md:w-fit absolute md:fixed">
-        <div class="w-24 h-24 p-4">
-            <CA_PCA/>
+        <div class="w-24 h-24 p-2">
+            <BDS/>
         </div>
         <div class="w-24 h-24 p-2">
             <IE/>

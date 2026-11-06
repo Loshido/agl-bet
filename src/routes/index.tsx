@@ -63,7 +63,6 @@ const submit = server$(async function(pseudo: string, pass: string): Promise<[nu
             ? [401, "Compte en attente"]
             : [400, "Erreur stupéfiante 👀"]
     }
-    client.release()
 
     if(await compare(pass, response.rows[0].pass) === false)
         return [400, "Erreur palpitante 👀"]
