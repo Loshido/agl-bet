@@ -12,11 +12,8 @@ const AUDIENCE = 'alg-bet-users';
 
 export const verify = async (jwt: string, ctx: EnvGetter): Promise<null | Payload> => {
     const secret = ctx.get('JWT_SECRET')
-    if(!secret) {
-        console.error("[jwt] JWT_SECRET introuvable")
-        return null
-    }
-    const key = new TextEncoder().encode(secret)
+    if(!secret) console.warn("JWT_SECRET not set!")
+    const key = new TextEncoder().encode(secret || 'the-very-long-jwt-secret-you-should-have-set')
 
     try {
         const { payload, protectedHeader } = await jwtVerify<Payload>(jwt, key, {
@@ -33,14 +30,10 @@ export const verify = async (jwt: string, ctx: EnvGetter): Promise<null | Payloa
 }
 
 export const sign = async (payload: Payload & JWTPayload, ctx: EnvGetter): Promise<string | null> => {
-    const secret = ctx.get('JWT_SECRET')
-    if(!secret) {
-        console.error("[jwt] JWT_SECRET introuvable")
-        return null
-    }
+	const secret = ctx.get('JWT_SECRET')
+    if(!secret) console.warn("JWT_SECRET not set!")
+    const key = new TextEncoder().encode(secret || 'the-very-long-jwt-secret-you-should-have-set')
 
-    const key = new TextEncoder().encode(secret)
-      
     const jwt = await new SignJWT(payload)
         .setProtectedHeader({ alg: ALG })
         .setIssuedAt()

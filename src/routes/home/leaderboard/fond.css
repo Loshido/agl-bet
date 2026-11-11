@@ -1,0 +1,27 @@
+.fond {
+	background: linear-gradient(to left top, #2638CA, #06cced);
+	isolation: isolate;
+}
+.fond::before,
+.fond::after {
+	position: absolute;
+	inset: 0;
+	z-index: 0;
+	content: "";
+}
+.fond::before {
+	background: var(--pattern), var(--map);
+    background-blend-mode: screen;
+    filter: contrast(19);
+    mix-blend-mode: multiply;
+}
+.fond::after {
+	background: linear-gradient(90deg, #080E1A, #2638CA);
+	mix-blend-mode: screen;
+}
+
+.fond::before {
+	--pattern: repeating-linear-gradient(30deg, #000, #999, #000 5%),
+    	repeating-linear-gradient(-60deg, #000, #999, #000 5%);
+    --map: linear-gradient(30deg, #777, #000);
+}

@@ -1,7 +1,7 @@
-import { component$, useStore, useVisibleTask$ } from "@builder.io/qwik";
+import { component$, useStore, useStylesScoped$, useVisibleTask$ } from "@builder.io/qwik";
 import { routeLoader$ } from "@builder.io/qwik-city";
 import Podium from "~/components/classement/podium";
-import Fond from "~/assets/fond.svg?jsx"
+import "./fond.css"
 import BDS from "~/assets/bds.png?jsx"
 import IE from "~/assets/ie.png?jsx"
 import confetti from "~/components/classement/confetti"
@@ -38,9 +38,9 @@ export default component$(() => {
     })
 
     return <>
-        <div class="-z-10 *:fixed *:top-0 *:left-0 *:w-full *:h-full">
+        <div class="-z-10 *:fixed *:top-0 *:left-0 *:w-full *:h-full fond">
             <canvas id="confetti" class="z-10"/>
-            <Fond/>
+            {/*<Fond/>*/}
         </div>
         <div class="mx-auto my-4 md:mt-8">
             <Podium
