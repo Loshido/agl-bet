@@ -71,7 +71,7 @@ export default component$(() => {
                     </p>
                     <p class="text-sm font-sobi col-span-2">
                         { joueur.agl } <span
-                            class="text-pink text-xs">agl</span>
+                            class="text-pink text-xs">pts</span>
                     </p>
                 </>)
             }

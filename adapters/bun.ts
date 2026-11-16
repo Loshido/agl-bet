@@ -14,7 +14,7 @@ export default extendConfig(baseConfig, {
         bunServerAdapter({
             ssg: {
                 include: ["/*"],
-                origin: "https://agl.isenengineering.fr/",
+                origin: "https://fifa.isenengineering.fr/",
                 maxWorkers: 1
             },
         }),

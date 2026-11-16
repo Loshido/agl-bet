@@ -22,10 +22,10 @@ export default ({ match }: Props) => {
         <p class="text-white/75 text-wrap">
             { match.informations }
             <span class="text-white/75 text-xs italic"
-                title="Période d'ouverture des paris"> - { 
+                title="Période d'ouverture des paris"> - {
                 match.ouverture.toLocaleTimeString(undefined, {
                     timeStyle: 'short'
-                }) } - { 
+                }) } - {
                 match.fermeture.toLocaleTimeString(undefined, {
                     timeStyle: 'short'
                 })
@@ -56,7 +56,7 @@ export default ({ match }: Props) => {
             <p class="font-sobi text-lg">
                 { match.agl }
                 <span class="text-pink text-sm mx-2">
-                    agl
+                    pts
                 </span>
             </p>
         </div>

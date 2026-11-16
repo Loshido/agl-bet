@@ -65,7 +65,7 @@ export default ({ location, agl, roles }: Props) => <section
         </nav>
         <Link class="py-1.5 px-3 bg-white/25 hover:bg-white/50 rounded-md font-sobi whitespace-nowrap backdrop-blur-xs"
             href="/home/bank" prefetch={false}>
-            { agl } <span class="text-sm text-pink">agl</span>
+            { agl } <span class="text-sm text-pink">pts</span>
         </Link>
     </header>
     <Slot/>

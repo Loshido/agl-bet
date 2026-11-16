@@ -29,7 +29,7 @@ export default component$(() => {
                     {utilisateur.pseudo}
                 </p>
                 <p class="font-sobi">
-                    {utilisateur.agl} <span class="text-xs text-pink">agl</span>
+                    {utilisateur.agl} <span class="text-xs text-pink">pts</span>
                 </p>
                 <Link class="py-1.5 px-2 font-bold text-center hover:bg-white/50
                     bg-white/25 cursor-pointer select-none rounded-sm" prefetch={false}

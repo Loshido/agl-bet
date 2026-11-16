@@ -40,7 +40,7 @@ export default ({ agl }: MenuProps) => <section class="flex flex-col gap-4 p-2 l
             <Back/>
         </Link>
         <h2 class="font-sobi text-white text-4xl">
-            { agl } <span class="text-sm text-pink">agl</span>
+            { agl } <span class="text-sm text-pink">pts</span>
         </h2>
     </header>
     <nav class="w-full h-full flex flex-col justify-between select-none">

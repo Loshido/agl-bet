@@ -60,7 +60,7 @@ export default component$(() => {
                 <Back/>
             </Link>
             <h2 class="font-sobi text-white text-4xl">
-                { meta.agl } <span class="text-sm text-pink">agl</span>
+                { meta.agl } <span class="text-sm text-pink">pts</span>
             </h2>
         </header>
         <h1 class="px-4 sm:px-8 text-2xl font-bold">

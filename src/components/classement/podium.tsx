@@ -21,7 +21,7 @@ export default component$(({ players }: Podium) => <div class="grid grid-cols-3 
         </h3>
         <p class="font-sobi text-xs md:text-base">
             { players[1].agl }
-            <span class="md:text-sm text-pink"> agl</span>
+            <span class="md:text-sm text-pink"> pts</span>
         </p>
     </div>
     <div class="row-span-3 col-start-2 col-end-3 row-end-4
@@ -37,7 +37,7 @@ export default component$(({ players }: Podium) => <div class="grid grid-cols-3 
         </h3>
         <p class="font-sobi text-xs md:text-base">
             { players[0].agl }
-            <span class="md:text-sm text-pink"> agl</span>
+            <span class="md:text-sm text-pink"> pts</span>
         </p>
     </div>
     <div class="row-span-3 col-start-3 -col-end-1 row-end-7
@@ -47,7 +47,7 @@ export default component$(({ players }: Podium) => <div class="grid grid-cols-3 
         </h3>
         <p class="font-sobi text-xs md:text-base">
             { players[2].agl }
-            <span class="md:text-sm text-pink"> agl</span>
+            <span class="md:text-sm text-pink"> pts</span>
         </p>
     </div>
     <Podium class={["absolute bottom-0 left-0 -z-10",

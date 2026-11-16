@@ -55,7 +55,7 @@ export default component$(() => {
                 <p class="text-right font-sobi text-sm">
                     { retrait.agl }
                     <span class="mx-2 text-pink text-xs">
-                        agl
+                        pts
                     </span>
                 </p>
                 <Button onClick$={async () => {
