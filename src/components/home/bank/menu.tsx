@@ -11,18 +11,18 @@ interface MenuProps {
 }
 
 const liens = [
-    {
-        label: "Envoyer de l'argent",
-        icon: <Send class="w-10 h-10 *:stroke-3 *:duration-500 *:transition-colors
-                    *:stroke-white group-hover:*:stroke-pink"/>,
-        href: "/home/bank/send"
-    },
-    {
-        label: "Retirer de l'argent",
-        icon: <Withdraw class="w-10 h-10 *:stroke-3 *:duration-500 *:transition-colors
-            *:stroke-white group-hover:*:stroke-pink"/>,
-        href: "/home/bank/withdraw"
-    },
+    // {
+    //     label: "Envoyer de l'argent",
+    //     icon: <Send class="w-10 h-10 *:stroke-3 *:duration-500 *:transition-colors
+    //                 *:stroke-white group-hover:*:stroke-pink"/>,
+    //     href: "/home/bank/send"
+    // },
+    // {
+    //     label: "Retirer de l'argent",
+    //     icon: <Withdraw class="w-10 h-10 *:stroke-3 *:duration-500 *:transition-colors
+    //         *:stroke-white group-hover:*:stroke-pink"/>,
+    //     href: "/home/bank/withdraw"
+    // },
     {
         label: "Historique",
         icon: <History class="w-10 h-10 *:stroke-3 *:duration-500 *:transition-colors
@@ -33,7 +33,7 @@ const liens = [
 
 export default ({ agl }: MenuProps) => <section class="flex flex-col gap-4 p-2 lg:px-80">
     <header class="w-full flex flex-row items-center justify-center p-4 relative">
-        <Link class="p-2 rounded-md flex flex-row items-center gap-2 
+        <Link class="p-2 rounded-md flex flex-row items-center gap-2
             bg-white/25 hover:bg-white/50
             absolute left-4"
             href="/home/match">

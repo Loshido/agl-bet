@@ -36,7 +36,7 @@ const submit = server$(async function(pseudo: string, pass: string): Promise<[nu
 
     if(!response.rowCount) {
         if(kv.get('inscriptions') !== '1') {
-                return [501, 'Les inscriptions ne sont plus ouvertes.']
+            return [501, 'Les inscriptions ne sont plus ouvertes.']
         }
 
         // l'utilisateur n'existe pas
@@ -49,11 +49,11 @@ const submit = server$(async function(pseudo: string, pass: string): Promise<[nu
         }
         const computed_pass = await hash(pass);
         const insertion = await client.query(
-            `INSERT INTO utilisateurs (pseudo, pass, roles, agl) VALUES ($1, $2, '[]', $3);`,
+            `INSERT INTO utilisateurs (pseudo, pass, roles, agl) VALUES ($1, $2, '["user"]', $3);`,
             [pseudo, computed_pass, agl]
         );
 
-        const jwt = await sign({ pseudo, roles: [] }, this.env)
+        const jwt = await sign({ pseudo, roles: ["user"] }, this.env)
         if(!jwt) return [500, "Erreur renversante 👀"]
 
         this.cookie.set('token', jwt, {
@@ -62,7 +62,7 @@ const submit = server$(async function(pseudo: string, pass: string): Promise<[nu
         });
 
         return insertion.rowCount
-            ? [401, "Compte en attente"]
+            ? [200, "Ok"]
             : [400, "Erreur stupéfiante 👀"]
     }
 
