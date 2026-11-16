@@ -9,7 +9,7 @@ interface Podium {
     players: [Player, Player, Player]
 }
 
-import Podium from "~/assets/classement/podium_sharp.svg?jsx"
+import Podium from "~/assets/classement/podium-fifa.svg?jsx"
 import CrownPart from "~/assets/classement/crown_part.svg?jsx"
 import Spotlight from "~/assets/classement/spotlight.svg?jsx"
 export default component$(({ players }: Podium) => <div class="grid grid-cols-3 grid-rows-8 relative isolate
@@ -50,7 +50,7 @@ export default component$(({ players }: Podium) => <div class="grid grid-cols-3 
             <span class="md:text-sm text-pink"> agl</span>
         </p>
     </div>
-    <Podium class={["absolute bottom-0 left-0 -z-10", 
+    <Podium class={["absolute bottom-0 left-0 -z-10",
         "h-25 md:h-50 w-75 md:w-150"]}/>
     <Spotlight class="absolute -z-20 blur-xl
         bottom-0 -left-12.5 w-100 h-50

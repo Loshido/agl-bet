@@ -16,7 +16,7 @@ const liens = [
         slot: <>
             <Live/>
             <span class="hidden sm:block">
-                Live
+                Paris
             </span>
         </>
     },
@@ -37,7 +37,7 @@ interface Props {
     roles: string[]
 }
 
-export default ({ location, agl, roles }: Props) => <section 
+export default ({ location, agl, roles }: Props) => <section
     class="min-h-svh p-4 md:p-8 flex flex-col gap-2 lg:gap-4 xl:gap-5 overflow-hidden relative">
     <header class="flex flex-row items-center justify-between text-xl font-sobi z-10">
         <nav class="flex flex-row items-center gap-2">
@@ -54,7 +54,7 @@ export default ({ location, agl, roles }: Props) => <section
             }
             {
                 roles.includes('admin') && <Link href="/admin/" prefetch={false}
-                    class="p-2 sm:px-3 rounded-md flex flex-row items-center gap-2 
+                    class="p-2 sm:px-3 rounded-md flex flex-row items-center gap-2
                     backdrop-blur-xs bg-white/25 hover:bg-white/50">
                     <Admin/>
                     <span class="hidden sm:block">
