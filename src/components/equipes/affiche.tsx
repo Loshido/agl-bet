@@ -6,8 +6,7 @@ interface Match {
     id: number,
     titre: string,
     informations: string,
-    ouverture: Date,
-    fermeture: Date,
+
     participants: number,
     agl: number,
     equipes: string[]
@@ -21,15 +20,7 @@ export default ({ match }: Props) => {
         </h2>
         <p class="text-white/75 text-wrap">
             { match.informations }
-            <span class="text-white/75 text-xs italic"
-                title="Période d'ouverture des paris"> - {
-                match.ouverture.toLocaleTimeString(undefined, {
-                    timeStyle: 'short'
-                }) } - {
-                match.fermeture.toLocaleTimeString(undefined, {
-                    timeStyle: 'short'
-                })
-            }</span>
+
         </p>
         <div class="flex flex-row items-center justify-center py-4 overflow-x-auto gap-2">
             {

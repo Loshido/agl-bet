@@ -6,16 +6,15 @@ import pg from "~/lib/pg";
 interface Match {
     id: number,
     titre: string,
-    ouverture: Date,
-    fermeture: Date,
     informations: string,
+    phase: 'en attente' | 'ouvert' | 'fermé',
 }
 
 export const useMatchs = routeLoader$(async () => {
     const client = await pg()
 
     const response = await client.query<Match>(
-        `SELECT id, titre, informations, ouverture, fermeture
+        `SELECT id, titre, informations, phase
         FROM matchs
         WHERE statut = 'en attente'`
     )
@@ -24,21 +23,19 @@ export const useMatchs = routeLoader$(async () => {
 })
 
 type Action = { type: 'supprimer' } |
-    { type: 'allonger', temps: number } |
+    { type: 'ouvrir' } |
     { type: 'fermer' }
 export const actionMatch = server$(async (id: number, action: Action) => {
     const client = await pg();
 
-    if(action.type === "allonger") {
-        if(typeof action.temps !== 'number') {
-                return false
-        }
-        await client.query(
-            `UPDATE matchs SET fermeture = fermeture + INTERVAL '${action.temps} minutes'
-            WHERE id = $1`,
+    if(action.type === "ouvrir") {
+        const response = await client.query(
+            `UPDATE matchs SET phase = 'ouvert'
+            WHERE id = $1 AND phase = 'en attente'
+            RETURNING id`,
             [id]
         )
-        return true
+        return response.rowCount === 1
     }
     if(action.type === "supprimer") {
         try {
@@ -77,12 +74,13 @@ export const actionMatch = server$(async (id: number, action: Action) => {
         }
     }
     if(action.type === "fermer") {
-        await client.query(
-            `UPDATE matchs SET fermeture = now()
-            WHERE id = $1`,
+        const response = await client.query(
+            `UPDATE matchs SET phase = 'fermé'
+            WHERE id = $1 AND phase = 'ouvert'
+            RETURNING id`,
             [id]
         )
-        return true
+        return response.rowCount === 1
     }
     return false
 })
@@ -91,6 +89,7 @@ export default component$(() => {
     const signal = useMatchs()
     const matchs = useStore(signal.value)
     const selection = useSignal<null | number>(null)
+    const selected = matchs.find(m => m.id === selection.value)
     return <>
         <Link href="/admin/matchs/new"
             class="px-2 py-1 sm:px-3 rounded-md flex flex-row items-center gap-2
@@ -109,19 +108,14 @@ export default component$(() => {
                         <p class="text-white/75 text-wrap">
                             { match.informations }
                             <span class="text-white/75 text-xs italic"
-                                title="Période d'ouverture des paris"> - {
-                                match.ouverture.toLocaleTimeString(undefined, {
-                                    timeStyle: 'short'
-                                }) } - {
-                                match.fermeture.toLocaleTimeString(undefined, {
-                                    timeStyle: 'short'
-                                })
+                                title="Statut du paris"> - {
+                                match.phase
                             }</span>
                         </p>
                     </div>
                     <div class="w-full h-full flex flex-row justify-end items-start">
                         {
-                            match.fermeture.getTime() < Date.now()
+                            match.phase === 'fermé'
                             ? <Link
                                 href={`/admin/matchs/${match.id}`}
                                 class="px-2 py-1 bg-white/25 rounded-md
@@ -142,6 +136,39 @@ export default component$(() => {
         <Dialog open={ selection.value !== null }
             exit={$(() => selection.value = null)}
             class="text-white">
+            {
+                selected?.phase === 'en attente' && <div class="px-2 py-1 bg-white/25 rounded-md
+                    transition-colors hover:bg-pink/75
+                    cursor-pointer select-none"
+                    onClick$={async () => {
+                        const id = selection.value
+                        if(!id) return
+                        const reussite = await actionMatch(id, { type: 'ouvrir' })
+                        if(!reussite) return
+                        const match = matchs.find(m => m.id === id)
+                        if(match) match.phase = 'ouvert'
+                        selection.value = null
+                    }}>
+                    Ouvrir les paris
+                </div>
+            }
+            {
+                selected?.phase === 'ouvert' && <div class="px-2 py-1 bg-white/25 rounded-md
+                    transition-colors hover:bg-pink/75
+                    cursor-pointer select-none"
+                    onClick$={async () => {
+                        const id = selection.value
+                        if(!id) return
+                        if(!confirm(`Fermer les paris du match N°${id} ?`)) return
+                        const reussite = await actionMatch(id, { type: 'fermer' })
+                        if(!reussite) return
+                        const match = matchs.find(m => m.id === id)
+                        if(match) match.phase = 'fermé'
+                        selection.value = null
+                    }}>
+                    Fermer les paris
+                </div>
+            }
             <div class="px-2 py-1 bg-white/25 rounded-md
                 transition-colors hover:bg-pink/75
                 cursor-pointer select-none"
@@ -153,7 +180,7 @@ export default component$(() => {
                         const reussite = await actionMatch(selection.value, {
                             type: "supprimer"
                         })
-                        if(reussite) {
+                        if(reussite) {
                             const i = matchs.findIndex(m => m.id === selection.value)
                             matchs.splice(i, 1)
                             selection.value = null
@@ -161,45 +188,6 @@ export default component$(() => {
                     }
                 }}>
                 Supprimer
-            </div>
-            <div class="px-2 py-1 bg-white/25 rounded-md
-                transition-colors hover:bg-pink/75
-                cursor-pointer select-none"
-                onClick$={async () => {
-                    const qt = prompt(
-                        `Entrez la quantité de minutes que vous voulez ajouter`
-                    )
-                    const min = parseInt(qt || '-1')
-                    if(min > 0 && selection.value) {
-                        const reussite = await actionMatch(selection.value, {
-                            type: 'allonger',
-                            temps: min
-                        })
-                        if(reussite) {
-                            selection.value = null
-                            location.reload()
-                        }
-                    }
-                }}>
-                Rallonger
-            </div>
-            <div class="px-2 py-1 bg-white/25 rounded-md
-                transition-colors hover:bg-pink/75
-                cursor-pointer select-none"
-                onClick$={async () => {
-                    if(!selection.value) return
-                    const reussite =  await actionMatch(selection.value, {
-                        type: 'fermer',
-                    })
-
-                    if(!reussite) return
-
-                    console.log(matchs, selection.value, matchs[selection.value])
-                    const i = matchs.findIndex(m => m.id === selection.value)
-                    matchs[i].fermeture = new Date(Date.now() - 1000 * 60)
-                    selection.value = null
-                }}>
-                Fermer
             </div>
         </Dialog>
     </>

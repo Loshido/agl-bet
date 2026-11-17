@@ -5,8 +5,6 @@ import { type DocumentHead, server$, useNavigate } from "@builder.io/qwik-city";
 interface Match {
     titre: string,
     informations: string,
-    ouverture: Date | null,
-    fermeture: Date | null,
     equipes: string[]
 }
 
@@ -16,10 +14,7 @@ export const createMatch = server$(async (match: Match): Promise<string> => {
         return "Le titre n'est pas défini"
     if(match.informations.length === 0)
         return "La description n'est pas défini"
-    if(match.fermeture === null)
-        return "La fermeture n'est pas défini"
-    if(match.ouverture === null)
-        return "L'ouverture n'est pas défini"
+
     if(match.equipes.length < 2)
         return "Il n'y a pas assez d'équipes"
     if(match.equipes.some(eq => eq.length === 0))
@@ -29,14 +24,12 @@ export const createMatch = server$(async (match: Match): Promise<string> => {
 
     const response = await client.query<Match & { id: number, agl: number, participants: number }>(
         `INSERT INTO matchs
-        (titre, informations, ouverture, fermeture, equipes, statut)
-        VALUES ($1, $2, $3, $4, $5, $6)
+        (titre, informations, equipes, statut)
+        VALUES ($1, $2, $3, $4)
         RETURNING *`,
         [
             match.titre,
             match.informations,
-            match.ouverture,
-            match.fermeture,
             JSON.stringify(match.equipes),
             "en attente"
         ]
@@ -57,8 +50,6 @@ export default component$(() => {
     const match = useStore<Match>({
         titre: '',
         informations: '',
-        ouverture: null,
-        fermeture: null,
         equipes: []
     })
 
@@ -73,26 +64,7 @@ export default component$(() => {
             <input type="text" onInput$={(_, t) => match.informations = t.value}
                 placeholder="Une description suffisament explicite"
                 class="outline-none placeholder:text-pink placeholder:animate-pulse"/>
-            <div class="w-full sm:grid grid-cols-2 py-2 text-xl flex flex-col
-                justify-items-center items-center text-center justify-center">
-                <div class="flex flex-col items-center gap-1">
-                    <span class="text-sm text-center">
-                        Ouverture
-                    </span>
-                    <input type="datetime-local"
-                        class="font-avenir font-medium w-48 text-center outline-none
-                        placeholder:animate-pulse placeholder:text-pink"
-                        onInput$={(_, t) => match.ouverture = new Date(t.value)}/>
-                </div>
-                <div class="flex flex-col items-center gap-1">
-                    <span class="text-sm text-center">
-                        Fermeture
-                    </span>
-                    <input type="datetime-local"
-                        class="font-avenir font-medium w-48 text-center outline-none"
-                        onInput$={(_, t) => match.fermeture = new Date(t.value)}/>
-                </div>
-            </div>
+
         </div>
 
         <div class="flex flex-row flex-wrap items-center py-4 overflow-x-auto gap-2">
@@ -141,7 +113,7 @@ export default component$(() => {
                 hover:bg-pink/75 bg-pink/50 cursor-pointer"
                 disabled={
                     match.equipes.length < 2 ||
-                    !match.fermeture || !match.ouverture ||
+
                     match.equipes.some(eq => eq.length === 0) ||
                     match.titre.length == 0 || match.informations.length== 0
                 }

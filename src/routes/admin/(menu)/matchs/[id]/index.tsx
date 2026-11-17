@@ -13,7 +13,7 @@ export const useMatch = routeLoader$(async ctx => {
         informations: string
     }>(
         `SELECT titre, informations, equipes FROM matchs WHERE
-        id = $1 AND fermeture < now() AND statut = 'en attente'`,
+        id = $1 AND phase = 'fermé' AND statut = 'en attente'`,
         [id]
     )
 

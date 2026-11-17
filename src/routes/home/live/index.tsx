@@ -27,7 +27,7 @@ export const useLive = routeLoader$(async ctx => {
             m.titre, m.informations
         FROM paris p
         JOIN matchs m ON m.id = p.match
-        WHERE pseudo = $1 AND fermeture > now()`,
+        WHERE pseudo = $1 AND m.phase = 'ouvert'`,
         [payload.pseudo]
     )
 
@@ -59,7 +59,7 @@ export const retirer = server$(async function(id: number, match: number) {
         const matchs = await client.query<unknown & { id: number }>(
             `UPDATE matchs SET
             agl = agl - $2, participants = participants - 1
-            WHERE id = $1
+            WHERE id = $1 AND phase = 'ouvert'
             RETURNING *`,
             [match, pari.agl])
         if(!matchs.rowCount) {

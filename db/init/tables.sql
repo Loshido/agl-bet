@@ -10,14 +10,28 @@ CREATE TABLE IF NOT EXISTS matchs (
 	id BIGSERIAL PRIMARY KEY,
 	titre TEXT NOT NULL,
 	informations TEXT NOT NULL,
-	ouverture TIMESTAMPTZ NOT NULL,
-	fermeture TIMESTAMPTZ NOT NULL,
 	equipes JSONB NOT NULL,
+	phase TEXT NOT NULL DEFAULT 'en attente' CHECK (phase IN ('en attente', 'ouvert', 'fermé')),
 	statut TEXT NOT NULL DEFAULT 'en attente',
 	participants INTEGER NOT NULL DEFAULT 0 CHECK (participants >= 0),
-	agl INTEGER NOT NULL DEFAULT 0 CHECK (agl >= 0),
-	CHECK (ouverture < fermeture)
+	agl INTEGER NOT NULL DEFAULT 0 CHECK (agl >= 0)
 );
+
+-- Migration : remplace les dates d'ouverture/fermeture par la phase manuelle
+DO $$
+BEGIN
+	IF EXISTS (SELECT 1 FROM information_schema.columns
+		WHERE table_name = 'matchs' AND column_name = 'ouverture') THEN
+		ALTER TABLE matchs ADD COLUMN phase TEXT NOT NULL DEFAULT 'en attente'
+			CHECK (phase IN ('en attente', 'ouvert', 'fermé'));
+		UPDATE matchs SET phase = CASE
+			WHEN fermeture <= now() THEN 'fermé'
+			WHEN ouverture <= now() THEN 'ouvert'
+			ELSE 'en attente'
+		END;
+		ALTER TABLE matchs DROP COLUMN ouverture, DROP COLUMN fermeture;
+	END IF;
+END $$;
 
 CREATE TABLE IF NOT EXISTS paris (
 	id BIGSERIAL PRIMARY KEY,

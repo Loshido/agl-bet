@@ -13,7 +13,7 @@ export const useMatch = routeLoader$(async ctx => {
 
     const response = await client.query<Match>(
         `SELECT * FROM matchs
-        WHERE id = $1 AND ouverture < now() AND fermeture > now()`,
+        WHERE id = $1 AND phase = 'ouvert'`,
         [ctx.params.id]
     )
 
@@ -85,7 +85,7 @@ export const parier = server$(async function(pari: number, equipe: string) {
 
         const matchs = await client.query<Match>(
             `UPDATE matchs SET participants = participants + 1, agl = agl + $2
-            WHERE id = $1 RETURNING *`,
+            WHERE id = $1 AND phase = 'ouvert' RETURNING *`,
             [match, pari]
         )
         if(!matchs.rowCount) {
@@ -143,15 +143,6 @@ export default component$(() => {
         </h1>
         <p class="text-white/75 text-wrap">
             { match.value.informations }
-            <span class="text-white/75 text-xs italic"
-                title="Période d'ouverture des paris"> - {
-                match.value.ouverture.toLocaleTimeString(undefined, {
-                    timeStyle: 'short'
-                }) } - {
-                match.value.fermeture.toLocaleTimeString(undefined, {
-                    timeStyle: 'short'
-                })
-            }</span>
         </p>
 
         <div class="grid grid-cols-2 lg:grid-cols-3 gap-2 w-full min-h-96">

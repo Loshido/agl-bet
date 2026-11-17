@@ -6,8 +6,7 @@ export interface Match {
     id: number,
     titre: string,
     informations: string,
-    ouverture: Date,
-    fermeture: Date,
+
     participants: number,
     agl: number,
     equipes: string[]
@@ -19,8 +18,8 @@ export const useMatchs = routeLoader$(async () => {
 
     const response = await client.query<Match>(
         `SELECT * FROM matchs
-        WHERE fermeture > now() AND ouverture < now()
-        ORDER BY fermeture ASC`
+        WHERE phase = 'ouvert'
+        ORDER BY id ASC`
     )
 
     return response.rows
